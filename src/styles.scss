@@ -1,1 +1,36 @@
-/* You can add global styles to this file, and also import other style files */
+// DevExtreme theme
+@import "~devextreme/dist/css/dx.light.css";
+
+// Custom overrides for gym management theme
+:root {
+  --dx-color-primary: #3f51b5;
+  --dx-color-primary-hover: #303f9f;
+  --dx-color-primary-selected: #1a237e;
+}
+
+// Global styles
+html, body { 
+  height: 100%; 
+  margin: 0; 
+  font-family: "Segoe UI", "Helvetica Neue", sans-serif; 
+}
+
+.gym-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.page-header {
+  margin-bottom: 30px;
+  
+  h1 {
+    color: var(--dx-color-primary);
+    margin-bottom: 8px;
+  }
+  
+  p {
+    color: #666;
+    font-size: 1.1em;
+  }
+}

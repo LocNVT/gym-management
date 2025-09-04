@@ -1,0 +1,63 @@
+<div class="card">
+  <div class="card-header with-border">
+    <h4>Quản lý khách hàng</h4>
+  </div>
+  <div class="card-body pt-2">
+    <dx-data-grid
+      [dataSource]="customersDataSource"
+      [remoteOperations]="true"
+      [allowColumnReordering]="true"
+      [allowColumnResizing]="true"
+      [columnAutoWidth]="true"
+      [showBorders]="true"
+      [showRowLines]="true"
+      [showColumnLines]="true"
+      [rowAlternationEnabled]="true"
+      [columnHidingEnabled]="true">
+
+      <dxi-column dataField="id" caption="ID" [width]="70"></dxi-column>
+      <dxi-column dataField="personalInfo.firstName" caption="Họ"></dxi-column>
+      <dxi-column dataField="personalInfo.lastName" caption="Tên"></dxi-column>
+      <dxi-column dataField="personalInfo.phone" caption="Số điện thoại"></dxi-column>
+      <dxi-column dataField="personalInfo.email" caption="Email"></dxi-column>
+      <dxi-column dataField="membership.membershipType" caption="Gói tập"></dxi-column>
+      <dxi-column dataField="membership.status" caption="Trạng thái"></dxi-column>
+      <dxi-column dataField="membership.startDate" caption="Ngày tham gia" dataType="date"></dxi-column>
+
+      <dxi-column type="buttons" [width]="150" caption="Thao tác">
+        <dxi-button name="edit" [onClick]="editCustomer"></dxi-button>
+        <dxi-button name="delete"></dxi-button> <!-- Deletion handled by store -->
+        <dxi-button
+          icon="info"
+          hint="Xem chi tiết"
+          [onClick]="viewCustomer">
+        </dxi-button>
+      </dxi-column>
+
+      <!-- Paging -->
+      <dxo-paging [enabled]="true" [pageSize]="10"></dxo-paging>
+      <dxo-pager
+        [showPageSizeSelector]="true"
+        [allowedPageSizes]="[10, 25, 50]"
+        [showInfo]="true">
+      </dxo-pager>
+
+      <!-- Searching -->
+      <dxo-search-panel [visible]="true" [highlightSearchText]="true"></dxo-search-panel>
+
+      <!-- Filtering -->
+      <dxo-filter-row [visible]="true"></dxo-filter-row>
+      <dxo-header-filter [visible]="true"></dxo-header-filter>
+
+      <!-- Grouping -->
+      <dxo-group-panel [visible]="true"></dxo-group-panel>
+      <dxo-grouping [autoExpandAll]="false"></dxo-grouping>
+
+      <!-- Export -->
+      <dxo-export [enabled]="true" fileName="customers"></dxo-export>
+
+    </dx-data-grid>
+  </div>
+</div>
+
+<app-customer-update #customerUpdate (customerSaved)="customersDataSource.reload()"></app-customer-update>

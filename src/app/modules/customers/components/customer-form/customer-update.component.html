@@ -1,0 +1,341 @@
+<dx-popup
+  [visible]="visible"
+  (onHiding)="onCancel()"
+  title="{{mode === 'create' ? 'Thêm khách hàng mới' : (mode === 'edit' ? 'Chỉnh sửa thông tin' : 'Thông tin khách hàng')}}"
+  [width]="1000"
+  [height]="700"
+  [showCloseButton]="true"
+  [dragEnabled]="true"
+  [resizeEnabled]="true">
+
+  <div *dxTemplate="let data of 'content'" class="customer-info-container">
+    <dx-form
+    [(formData)]="customer">
+    <dxi-item dataField="name"></dxi-item>
+    <dxi-item dataField="hireDate"
+        editorType="dxCalendar"
+        [editorOptions]="">
+    </dxi-item>
+    <dxi-item dataField="notes"
+        editorType="dxTextArea"
+        [editorOptions]="{ placeholder: 'Add notes...' }">
+    </dxi-item>
+</dx-form>
+
+    <!-- Header with customer summary -->
+    <div class="customer-header" *ngIf="mode !== 'create'">
+      <div class="customer-avatar">
+        <i class="dx-icon dx-icon-user"></i>
+      </div>
+      <div class="customer-summary">
+        <h2>{{getFullName()}}</h2>
+        <div class="customer-details">
+          <span class="detail-item">
+            <i class="dx-icon dx-icon-tel"></i>
+            {{customer?.personalInfo?.phone}}
+          </span>
+          <span class="detail-item">
+            <i class="dx-icon dx-icon-email"></i>
+            {{customer?.personalInfo?.email}}
+          </span>
+          <span class="detail-item">
+            <i class="dx-icon dx-icon-event"></i>
+            {{calculateAge()}} tuổi
+          </span>
+        </div>
+        <div class="status-badges">
+          <dx-button
+            [text]="getStatusText()"
+            [stylingMode]="'contained'"
+            type="default"
+            [disabled]="true"
+            class="status-badge">
+          </dx-button>
+          <dx-button
+            [text]="getPaymentStatusText()"
+            [stylingMode]="'contained'"
+            type="default"
+            [disabled]="true"
+            class="payment-badge">
+          </dx-button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabbed content -->
+    <dx-tabs
+      [dataSource]="tabsData"
+      [selectedIndex]="0"
+      class="customer-tabs">
+
+      <!-- Personal Information Tab -->
+      <div *dxTemplate="let tabData of 'item'" [ngSwitch]="tabData.id">
+
+        <div *ngSwitchCase="'personal'" class="tab-content">
+          <dx-form
+            [formData]="customer?.personalInfo"
+            [readOnly]="mode === 'view'"
+            [showColonAfterLabel]="true"
+            [labelLocation]="'top'"
+            [minColWidth]="300">
+
+            <dxi-item itemType="group" caption="Thông tin cá nhân" [colCount]="2">
+              <dxi-item dataField="firstName" [label]="{ text: 'Họ và tên đệm' }">
+                <dxi-validation-rule type="required" message="Vui lòng nhập họ và tên đệm"></dxi-validation-rule>
+              </dxi-item>
+              <dxi-item dataField="lastName" [label]="{ text: 'Tên' }">
+                <dxi-validation-rule type="required" message="Vui lòng nhập tên"></dxi-validation-rule>
+              </dxi-item>
+              <dxi-item dataField="dateOfBirth" editorType="dxDateBox" [label]="{ text: 'Ngày sinh' }">
+                <!-- <dxo-editor-options
+                  [max]="new Date()"
+                  displayFormat="dd/MM/yyyy"
+                  [showClearButton]="true">
+                </dxo-editor-options> -->
+              </dxi-item>
+              <dxi-item dataField="gender" editorType="dxSelectBox" [label]="{ text: 'Giới tính' }">
+                <!-- <dxo-editor-options
+                  [dataSource]="genderOptions"
+                  valueExpr="value"
+                  displayExpr="text">
+                </dxo-editor-options> -->
+              </dxi-item>
+            </dxi-item>
+
+            <dxi-item itemType="group" caption="Thông tin liên hệ" [colCount]="2">
+              <dxi-item dataField="phone" [label]="{ text: 'Số điện thoại' }">
+                <dxi-validation-rule type="required" message="Vui lòng nhập số điện thoại"></dxi-validation-rule>
+                <dxi-validation-rule type="pattern" pattern="^[0-9]{10,11}$" message="Số điện thoại không hợp lệ"></dxi-validation-rule>
+              </dxi-item>
+              <dxi-item dataField="email" [label]="{ text: 'Email' }">
+                <dxi-validation-rule type="required" message="Vui lòng nhập email"></dxi-validation-rule>
+                <dxi-validation-rule type="email" message="Email không hợp lệ"></dxi-validation-rule>
+              </dxi-item>
+              <dxi-item dataField="address" [label]="{ text: 'Địa chỉ' }" [colSpan]="2" editorType="dxTextArea">
+                <!-- <dxo-editor-options [height]="60"></dxo-editor-options> -->
+              </dxi-item>
+            </dxi-item>
+
+            <dxi-item itemType="group" caption="Liên hệ khẩn cấp" [colCount]="2">
+              <dxi-item dataField="emergencyContact" [label]="{ text: 'Tên người liên hệ' }"></dxi-item>
+              <dxi-item dataField="emergencyPhone" [label]="{ text: 'Số điện thoại' }"></dxi-item>
+            </dxi-item>
+
+          </dx-form>
+        </div>
+
+        <!-- Membership Tab -->
+        <div *ngSwitchCase="'membership'" class="tab-content">
+          <dx-form
+            [formData]="customer?.membership"
+            [readOnly]="mode === 'view'"
+            [showColonAfterLabel]="true"
+            [labelLocation]="'top'"
+            [minColWidth]="300">
+
+            <dxi-item itemType="group" caption="Thông tin gói tập" [colCount]="2">
+              <dxi-item dataField="membershipType" editorType="dxSelectBox" [label]="{ text: 'Loại gói tập' }">
+                <!-- <dxo-editor-options
+                  [dataSource]="membershipOptions"
+                  valueExpr="value"
+                  displayExpr="text"
+                  (onValueChanged)="onMembershipTypeChange($event)">
+                </dxo-editor-options> -->
+              </dxi-item>
+              <dxi-item dataField="status" editorType="dxSelectBox" [label]="{ text: 'Trạng thái' }">
+                <!-- <dxo-editor-options
+                  [dataSource]="statusOptions"
+                  valueExpr="value"
+                  displayExpr="text">
+                </dxo-editor-options> -->
+              </dxi-item>
+              <dxi-item dataField="startDate" editorType="dxDateBox" [label]="{ text: 'Ngày bắt đầu' }">
+                <!-- <dxo-editor-options
+                  displayFormat="dd/MM/yyyy"
+                  [showClearButton]="true">
+                </dxo-editor-options> -->
+              </dxi-item>
+              <dxi-item dataField="endDate" editorType="dxDateBox" [label]="{ text: 'Ngày hết hạn' }">
+                <!-- <dxo-editor-options
+                  displayFormat="dd/MM/yyyy"
+                  [showClearButton]="true">
+                </dxo-editor-options> -->
+              </dxi-item>
+              <dxi-item dataField="autoRenewal" editorType="dxCheckBox" [label]="{ text: 'Gia hạn tự động' }"></dxi-item>
+              <dxi-item dataField="paymentStatus" editorType="dxSelectBox" [label]="{ text: 'Trạng thái thanh toán' }">
+                <!-- <dxo-editor-options
+                  [dataSource]="paymentStatusOptions"
+                  valueExpr="value"
+                  displayExpr="text">
+                </dxo-editor-options> -->
+              </dxi-item>
+            </dxi-item>
+
+            <!-- Membership summary -->
+            <dxi-item itemType="group" caption="Tóm tắt" *ngIf="mode !== 'create'">
+              <div class="membership-summary">
+                <div class="summary-item">
+                  <span class="label">Thời gian còn lại:</span>
+                  <span class="value" [class.expired]="getDaysUntilExpiry() < 0">
+                    {{getDaysUntilExpiry()}} ngày
+                  </span>
+                </div>
+                <div class="summary-item">
+                  <span class="label">Tổng số lần tập:</span>
+                  <span class="value">{{customer?.attendance?.totalVisits}}</span>
+                </div>
+                <div class="summary-item">
+                  <span class="label">Trung bình/tuần:</span>
+                  <span class="value">{{customer?.attendance?.averageVisitsPerWeek}}</span>
+                </div>
+              </div>
+            </dxi-item>
+
+          </dx-form>
+        </div>
+
+        <!-- Health Information Tab -->
+        <div *ngSwitchCase="'health'" class="tab-content">
+          <dx-form
+            [formData]="customer?.healthInfo"
+            [readOnly]="mode === 'view'"
+            [showColonAfterLabel]="true"
+            [labelLocation]="'top'">
+
+            <dxi-item itemType="group" caption="Thông tin sức khỏe">
+              <dxi-item dataField="fitnessGoals" editorType="dxTagBox" [label]="{ text: 'Mục tiêu tập luyện' }">
+                <!-- <dxo-editor-options
+                  [dataSource]="fitnessGoalsOptions"
+                  [showSelectionControls]="true"
+                  [multiline]="true"
+                  [acceptCustomValue]="true">
+                </dxo-editor-options> -->
+              </dxi-item>
+              <dxi-item dataField="medicalConditions" editorType="dxTagBox" [label]="{ text: 'Tình trạng bệnh lý' }">
+                <!-- <dxo-editor-options
+                  [dataSource]="medicalConditionsOptions"
+                  [showSelectionControls]="true"
+                  [multiline]="true"
+                  [acceptCustomValue]="true">
+                </dxo-editor-options> -->
+              </dxi-item>
+              <dxi-item dataField="allergies" editorType="dxTagBox" [label]="{ text: 'Dị ứng' }">
+                <!-- <dxo-editor-options
+                  [acceptCustomValue]="true"
+                  [multiline]="true">
+                </dxo-editor-options> -->
+              </dxi-item>
+              <dxi-item dataField="previousInjuries" editorType="dxTextArea" [label]="{ text: 'Chấn thương cũ' }">
+                <!-- <dxo-editor-options [height]="80"></dxo-editor-options> -->
+              </dxi-item>
+              <dxi-item dataField="notes" editorType="dxTextArea" [label]="{ text: 'Ghi chú thêm' }">
+                <!-- <dxo-editor-options [height]="100"></dxo-editor-options> -->
+              </dxi-item>
+            </dxi-item>
+
+          </dx-form>
+        </div>
+
+        <!-- Financial Tab -->
+        <div *ngSwitchCase="'financial'" class="tab-content">
+          <dx-form
+            [formData]="customer?.financial"
+            [readOnly]="mode === 'view'"
+            [showColonAfterLabel]="true"
+            [labelLocation]="'top'"
+            [minColWidth]="300">
+
+            <dxi-item itemType="group" caption="Thông tin tài chính" [colCount]="2">
+              <dxi-item dataField="totalPaid" editorType="dxNumberBox" [label]="{ text: 'Tổng đã thanh toán (VNĐ)' }">
+                <!-- <dxo-editor-options
+                  format="#,##0"
+                  [showSpinButtons]="false">
+                </dxo-editor-options> -->
+              </dxi-item>
+              <dxi-item dataField="outstandingBalance" editorType="dxNumberBox" [label]="{ text: 'Số dư nợ (VNĐ)' }">
+                <!-- <dxo-editor-options
+                  format="#,##0"
+                  [showSpinButtons]="false">
+                </dxo-editor-options> -->
+              </dxi-item>
+              <dxi-item dataField="paymentMethod" editorType="dxSelectBox" [label]="{ text: 'Phương thức thanh toán' }">
+                <!-- <dxo-editor-options
+                  [dataSource]="paymentMethodOptions"
+                  valueExpr="value"
+                  displayExpr="text">
+                </dxo-editor-options> -->
+              </dxi-item>
+              <dxi-item dataField="lastPaymentDate" editorType="dxDateBox" [label]="{ text: 'Ngày thanh toán cuối' }">
+                <!-- <dxo-editor-options
+                  displayFormat="dd/MM/yyyy"
+                  [showClearButton]="true">
+                </dxo-editor-options> -->
+              </dxi-item>
+            </dxi-item>
+
+            <!-- Financial summary -->
+            <dxi-item itemType="group" caption="Tóm tắt tài chính" *ngIf="mode !== 'create'">
+              <div class="financial-summary">
+                <div class="summary-card total-paid">
+                  <div class="card-icon">
+                    <i class="dx-icon dx-icon-money"></i>
+                  </div>
+                  <div class="card-content">
+                    <div class="amount">{{customer?.financial?.totalPaid | number}}</div>
+                    <div class="label">Tổng đã thanh toán</div>
+                  </div>
+                </div>
+                <div class="summary-card outstanding" [class.negative]="customer?.financial?.outstandingBalance ?? 0 > 0">
+                  <div class="card-icon">
+                    <i class="dx-icon dx-icon-card"></i>
+                  </div>
+                  <div class="card-content">
+                    <div class="amount">{{customer?.financial?.outstandingBalance | number}}</div>
+                    <div class="label">Số dư nợ</div>
+                  </div>
+                </div>
+              </div>
+            </dxi-item>
+
+          </dx-form>
+        </div>
+
+      </div>
+    </dx-tabs>
+
+  </div>
+
+  <!-- Footer buttons -->
+  <div *dxTemplate="let data of 'toolbarItems'" class="popup-footer">
+    <dx-button
+      text="Hủy"
+      type="normal"
+      (onClick)="onCancel()">
+    </dx-button>
+
+    <dx-button
+      *ngIf="mode !== 'view'"
+      text="{{mode === 'create' ? 'Tạo mới' : 'Cập nhật'}}"
+      type="default"
+      [useSubmitBehavior]="true"
+      (onClick)="onSave()">
+    </dx-button>
+
+    <dx-button
+      *ngIf="mode === 'view'"
+      text="In thông tin"
+      icon="print"
+      type="normal"
+      (onClick)="printCustomerInfo()">
+    </dx-button>
+
+    <dx-button
+      *ngIf="mode === 'view'"
+      text="Xuất PDF"
+      icon="export"
+      type="normal"
+      (onClick)="exportToPdf()">
+    </dx-button>
+  </div>
+
+</dx-popup>
