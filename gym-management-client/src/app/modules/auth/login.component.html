@@ -1,0 +1,48 @@
+<div class="login-wrapper">
+    <mat-card class="login-card">
+        <mat-card-header>
+            <div class="login-header">
+                <mat-icon class="logo-icon">fitness_center</mat-icon>
+                <h1>FitGym Manager</h1>
+                <p>Đăng nhập để tiếp tục</p>
+            </div>
+        </mat-card-header>
+
+        <mat-card-content>
+            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Tên đăng nhập</mat-label>
+                    <input matInput formControlName="username" placeholder="Nhập tên đăng nhập">
+                    <mat-icon matPrefix>person</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Mật khẩu</mat-label>
+                    <input matInput formControlName="password" [type]="hidePassword ? 'password' : 'text'"
+                        placeholder="Nhập mật khẩu">
+                    <mat-icon matPrefix>lock</mat-icon>
+                    <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
+                        <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                    </button>
+                </mat-form-field>
+
+                <div class="error-message" *ngIf="errorMessage">
+                    <mat-icon>error</mat-icon>
+                    {{ errorMessage }}
+                </div>
+
+                <button mat-raised-button color="primary" type="submit" class="full-width login-btn"
+                    [disabled]="loginForm.invalid || isLoading">
+                    <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
+                    <span *ngIf="!isLoading">Đăng nhập</span>
+                </button>
+            </form>
+
+            <div class="divider">
+                <span>hoặc</span>
+            </div>
+
+            <div #googleBtn class="google-btn-container"></div>
+        </mat-card-content>
+    </mat-card>
+</div>

@@ -1,0 +1,20 @@
+<h2 class="page-title">Quản lý Gói dịch vụ</h2>
+
+<dx-data-grid [dataSource]="dataSource" [showBorders]="true" [rowAlternationEnabled]="true" [columnAutoWidth]="true"
+    [remoteOperations]="{ paging: true }">
+
+    <dxo-editing mode="popup" [allowAdding]="true" [allowUpdating]="true" [allowDeleting]="true">
+        <dxo-popup title="Thông tin Gói dịch vụ" [showTitle]="true" [width]="600" [height]="400"></dxo-popup>
+    </dxo-editing>
+    <dxo-filter-row [visible]="true"></dxo-filter-row>
+    <dxo-search-panel [visible]="true" placeholder="Tìm kiếm..."></dxo-search-panel>
+    <dxo-paging [pageSize]="10"></dxo-paging>
+    <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true"></dxo-pager>
+
+    <dxi-column dataField="name" caption="Tên gói"></dxi-column>
+    <dxi-column dataField="description" caption="Mô tả"></dxi-column>
+    <dxi-column dataField="price" caption="Giá" dataType="number" format="#,##0 VNĐ"></dxi-column>
+    <dxi-column dataField="durationDays" caption="Số ngày" dataType="number"></dxi-column>
+    <dxi-column dataField="maxCheckins" caption="Số lần check-in tối đa" dataType="number"></dxi-column>
+    <dxi-column dataField="isActive" caption="Hoạt động" dataType="boolean"></dxi-column>
+</dx-data-grid>

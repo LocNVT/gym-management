@@ -1,0 +1,27 @@
+<h2 class="page-title">Quản lý Đăng ký Dịch vụ</h2>
+
+<dx-data-grid [dataSource]="dataSource" [showBorders]="true" [rowAlternationEnabled]="true" [columnAutoWidth]="true"
+    [remoteOperations]="{ paging: true }">
+
+    <dxo-editing mode="popup" [allowAdding]="true" [allowUpdating]="true" [allowDeleting]="true">
+        <dxo-popup title="Đăng ký Dịch vụ" [showTitle]="true" [width]="700" [height]="500"></dxo-popup>
+    </dxo-editing>
+    <dxo-filter-row [visible]="true"></dxo-filter-row>
+    <dxo-search-panel [visible]="true" placeholder="Tìm kiếm..."></dxo-search-panel>
+    <dxo-paging [pageSize]="10"></dxo-paging>
+    <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true"></dxo-pager>
+
+    <dxi-column dataField="memberId" caption="Thành viên">
+        <dxo-lookup [dataSource]="members" valueExpr="id" displayExpr="fullName"></dxo-lookup>
+    </dxi-column>
+    <dxi-column dataField="servicePackageId" caption="Gói dịch vụ">
+        <dxo-lookup [dataSource]="servicePackages" valueExpr="id" displayExpr="name"></dxo-lookup>
+    </dxi-column>
+    <dxi-column dataField="startDate" caption="Ngày bắt đầu" dataType="date" format="dd/MM/yyyy"></dxi-column>
+    <dxi-column dataField="endDate" caption="Ngày kết thúc" dataType="date" format="dd/MM/yyyy"></dxi-column>
+    <dxi-column dataField="priceAtPurchase" caption="Giá mua" dataType="number" format="#,##0 VNĐ"></dxi-column>
+    <dxi-column dataField="remainingCheckins" caption="Còn lại" dataType="number"></dxi-column>
+    <dxi-column dataField="status" caption="Trạng thái">
+        <dxo-lookup [dataSource]="statusOptions" valueExpr="value" displayExpr="text"></dxo-lookup>
+    </dxi-column>
+</dx-data-grid>

@@ -1,0 +1,16 @@
+<mat-toolbar color="primary" class="header" *ngIf="authService.isAuthenticated()">
+  <span class="logo">
+    <mat-icon>fitness_center</mat-icon>
+    FitGym Manager
+  </span>
+  <span class="spacer"></span>
+  <button mat-icon-button [matMenuTriggerFor]="userMenu">
+    <mat-icon>account_circle</mat-icon>
+  </button>
+  <mat-menu #userMenu="matMenu">
+    <button mat-menu-item (click)="logout()">
+      <mat-icon>logout</mat-icon>
+      <span>Đăng xuất</span>
+    </button>
+  </mat-menu>
+</mat-toolbar>

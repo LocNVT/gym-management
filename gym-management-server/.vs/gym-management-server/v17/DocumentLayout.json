@@ -1,0 +1,273 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\work\\gym-management-server\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{90C41E16-44D9-4DB2-B579-A6DD20D957F3}|gym-management-server\\gym-management-server.csproj|d:\\work\\gym-management-server\\gym-management-server\\controllers\\membercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{90C41E16-44D9-4DB2-B579-A6DD20D957F3}|gym-management-server\\gym-management-server.csproj|solutionrelative:gym-management-server\\controllers\\membercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{90C41E16-44D9-4DB2-B579-A6DD20D957F3}|gym-management-server\\gym-management-server.csproj|d:\\work\\gym-management-server\\gym-management-server\\dtos\\memberdataservices\\memberdataserviceoutput.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{90C41E16-44D9-4DB2-B579-A6DD20D957F3}|gym-management-server\\gym-management-server.csproj|solutionrelative:gym-management-server\\dtos\\memberdataservices\\memberdataserviceoutput.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{90C41E16-44D9-4DB2-B579-A6DD20D957F3}|gym-management-server\\gym-management-server.csproj|d:\\work\\gym-management-server\\gym-management-server\\services\\memberdataservices\\memberdataserviceservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{90C41E16-44D9-4DB2-B579-A6DD20D957F3}|gym-management-server\\gym-management-server.csproj|solutionrelative:gym-management-server\\services\\memberdataservices\\memberdataserviceservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{90C41E16-44D9-4DB2-B579-A6DD20D957F3}|gym-management-server\\gym-management-server.csproj|d:\\work\\gym-management-server\\gym-management-server\\services\\members\\memberservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{90C41E16-44D9-4DB2-B579-A6DD20D957F3}|gym-management-server\\gym-management-server.csproj|solutionrelative:gym-management-server\\services\\members\\memberservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{90C41E16-44D9-4DB2-B579-A6DD20D957F3}|gym-management-server\\gym-management-server.csproj|d:\\work\\gym-management-server\\gym-management-server\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{90C41E16-44D9-4DB2-B579-A6DD20D957F3}|gym-management-server\\gym-management-server.csproj|solutionrelative:gym-management-server\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{90C41E16-44D9-4DB2-B579-A6DD20D957F3}|gym-management-server\\gym-management-server.csproj|d:\\work\\gym-management-server\\gym-management-server\\controllers\\memberdataservicecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{90C41E16-44D9-4DB2-B579-A6DD20D957F3}|gym-management-server\\gym-management-server.csproj|solutionrelative:gym-management-server\\controllers\\memberdataservicecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{90C41E16-44D9-4DB2-B579-A6DD20D957F3}|gym-management-server\\gym-management-server.csproj|d:\\work\\gym-management-server\\gym-management-server\\controllers\\checkincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{90C41E16-44D9-4DB2-B579-A6DD20D957F3}|gym-management-server\\gym-management-server.csproj|solutionrelative:gym-management-server\\controllers\\checkincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{90C41E16-44D9-4DB2-B579-A6DD20D957F3}|gym-management-server\\gym-management-server.csproj|d:\\work\\gym-management-server\\gym-management-server\\services\\checkins\\checkinservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{90C41E16-44D9-4DB2-B579-A6DD20D957F3}|gym-management-server\\gym-management-server.csproj|solutionrelative:gym-management-server\\services\\checkins\\checkinservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{90C41E16-44D9-4DB2-B579-A6DD20D957F3}|gym-management-server\\gym-management-server.csproj|d:\\work\\gym-management-server\\gym-management-server\\repositories\\checkins\\checkinrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{90C41E16-44D9-4DB2-B579-A6DD20D957F3}|gym-management-server\\gym-management-server.csproj|solutionrelative:gym-management-server\\repositories\\checkins\\checkinrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{90C41E16-44D9-4DB2-B579-A6DD20D957F3}|gym-management-server\\gym-management-server.csproj|d:\\work\\gym-management-server\\gym-management-server\\repositories\\checkins\\icheckinrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{90C41E16-44D9-4DB2-B579-A6DD20D957F3}|gym-management-server\\gym-management-server.csproj|solutionrelative:gym-management-server\\repositories\\checkins\\icheckinrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{90C41E16-44D9-4DB2-B579-A6DD20D957F3}|gym-management-server\\gym-management-server.csproj|d:\\work\\gym-management-server\\gym-management-server\\entities\\servicepackages\\servicepackage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{90C41E16-44D9-4DB2-B579-A6DD20D957F3}|gym-management-server\\gym-management-server.csproj|solutionrelative:gym-management-server\\entities\\servicepackages\\servicepackage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{90C41E16-44D9-4DB2-B579-A6DD20D957F3}|gym-management-server\\gym-management-server.csproj|d:\\work\\gym-management-server\\gym-management-server\\entities\\invoiceitems\\invoiceitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{90C41E16-44D9-4DB2-B579-A6DD20D957F3}|gym-management-server\\gym-management-server.csproj|solutionrelative:gym-management-server\\entities\\invoiceitems\\invoiceitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{90C41E16-44D9-4DB2-B579-A6DD20D957F3}|gym-management-server\\gym-management-server.csproj|d:\\work\\gym-management-server\\gym-management-server\\entities\\invoices\\invoice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{90C41E16-44D9-4DB2-B579-A6DD20D957F3}|gym-management-server\\gym-management-server.csproj|solutionrelative:gym-management-server\\entities\\invoices\\invoice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{90C41E16-44D9-4DB2-B579-A6DD20D957F3}|gym-management-server\\gym-management-server.csproj|d:\\work\\gym-management-server\\gym-management-server\\repositories\\members\\memberrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{90C41E16-44D9-4DB2-B579-A6DD20D957F3}|gym-management-server\\gym-management-server.csproj|solutionrelative:gym-management-server\\repositories\\members\\memberrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{90C41E16-44D9-4DB2-B579-A6DD20D957F3}|gym-management-server\\gym-management-server.csproj|d:\\work\\gym-management-server\\gym-management-server\\repositories\\members\\imemberrepository.cs.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{90C41E16-44D9-4DB2-B579-A6DD20D957F3}|gym-management-server\\gym-management-server.csproj|solutionrelative:gym-management-server\\repositories\\members\\imemberrepository.cs.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "MemberController.cs",
+              "DocumentMoniker": "D:\\work\\gym-management-server\\gym-management-server\\Controllers\\MemberController.cs",
+              "RelativeDocumentMoniker": "gym-management-server\\Controllers\\MemberController.cs",
+              "ToolTip": "D:\\work\\gym-management-server\\gym-management-server\\Controllers\\MemberController.cs",
+              "RelativeToolTip": "gym-management-server\\Controllers\\MemberController.cs",
+              "ViewState": "AQIAAA0AAAAAAAAAAAA1wAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-29T14:41:19.253Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "MemberDataServiceController.cs",
+              "DocumentMoniker": "D:\\work\\gym-management-server\\gym-management-server\\Controllers\\MemberDataServiceController.cs",
+              "RelativeDocumentMoniker": "gym-management-server\\Controllers\\MemberDataServiceController.cs",
+              "ToolTip": "D:\\work\\gym-management-server\\gym-management-server\\Controllers\\MemberDataServiceController.cs",
+              "RelativeToolTip": "gym-management-server\\Controllers\\MemberDataServiceController.cs",
+              "ViewState": "AQIAABQAAAAAAAAAAAAlwC0AAABSAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-29T14:20:35.69Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "MemberDataServiceService.cs",
+              "DocumentMoniker": "D:\\work\\gym-management-server\\gym-management-server\\Services\\MemberDataServices\\MemberDataServiceService.cs",
+              "RelativeDocumentMoniker": "gym-management-server\\Services\\MemberDataServices\\MemberDataServiceService.cs",
+              "ToolTip": "D:\\work\\gym-management-server\\gym-management-server\\Services\\MemberDataServices\\MemberDataServiceService.cs",
+              "RelativeToolTip": "gym-management-server\\Services\\MemberDataServices\\MemberDataServiceService.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAoAAABgAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-29T14:07:55.9Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "MemberDataServiceOutput.cs",
+              "DocumentMoniker": "D:\\work\\gym-management-server\\gym-management-server\\DTOs\\MemberDataServices\\MemberDataServiceOutput.cs",
+              "RelativeDocumentMoniker": "gym-management-server\\DTOs\\MemberDataServices\\MemberDataServiceOutput.cs",
+              "ToolTip": "D:\\work\\gym-management-server\\gym-management-server\\DTOs\\MemberDataServices\\MemberDataServiceOutput.cs",
+              "RelativeToolTip": "gym-management-server\\DTOs\\MemberDataServices\\MemberDataServiceOutput.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAqwA0AAAAtAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-29T14:05:57.224Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "InvoiceItem.cs",
+              "DocumentMoniker": "D:\\work\\gym-management-server\\gym-management-server\\Entities\\InvoiceItems\\InvoiceItem.cs",
+              "RelativeDocumentMoniker": "gym-management-server\\Entities\\InvoiceItems\\InvoiceItem.cs",
+              "ToolTip": "D:\\work\\gym-management-server\\gym-management-server\\Entities\\InvoiceItems\\InvoiceItem.cs",
+              "RelativeToolTip": "gym-management-server\\Entities\\InvoiceItems\\InvoiceItem.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-29T13:53:31.776Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "Invoice.cs",
+              "DocumentMoniker": "D:\\work\\gym-management-server\\gym-management-server\\Entities\\Invoices\\Invoice.cs",
+              "RelativeDocumentMoniker": "gym-management-server\\Entities\\Invoices\\Invoice.cs",
+              "ToolTip": "D:\\work\\gym-management-server\\gym-management-server\\Entities\\Invoices\\Invoice.cs",
+              "RelativeToolTip": "gym-management-server\\Entities\\Invoices\\Invoice.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-29T13:53:27.714Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "ServicePackage.cs",
+              "DocumentMoniker": "D:\\work\\gym-management-server\\gym-management-server\\Entities\\ServicePackages\\ServicePackage.cs",
+              "RelativeDocumentMoniker": "gym-management-server\\Entities\\ServicePackages\\ServicePackage.cs",
+              "ToolTip": "D:\\work\\gym-management-server\\gym-management-server\\Entities\\ServicePackages\\ServicePackage.cs",
+              "RelativeToolTip": "gym-management-server\\Entities\\ServicePackages\\ServicePackage.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA0AAABCAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-17T16:20:43.223Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "CheckInRepository.cs",
+              "DocumentMoniker": "D:\\work\\gym-management-server\\gym-management-server\\Repositories\\CheckIns\\CheckInRepository.cs",
+              "RelativeDocumentMoniker": "gym-management-server\\Repositories\\CheckIns\\CheckInRepository.cs",
+              "ToolTip": "D:\\work\\gym-management-server\\gym-management-server\\Repositories\\CheckIns\\CheckInRepository.cs",
+              "RelativeToolTip": "gym-management-server\\Repositories\\CheckIns\\CheckInRepository.cs",
+              "ViewState": "AQIAAA8AAAAAAAAAAAAnwCIAAAAfAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-17T15:59:37.073Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "MemberService.cs",
+              "DocumentMoniker": "D:\\work\\gym-management-server\\gym-management-server\\Services\\Members\\MemberService.cs",
+              "RelativeDocumentMoniker": "gym-management-server\\Services\\Members\\MemberService.cs",
+              "ToolTip": "D:\\work\\gym-management-server\\gym-management-server\\Services\\Members\\MemberService.cs",
+              "RelativeToolTip": "gym-management-server\\Services\\Members\\MemberService.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAkAAAA3AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-17T15:52:05.451Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "CheckInService.cs",
+              "DocumentMoniker": "D:\\work\\gym-management-server\\gym-management-server\\Services\\CheckIns\\CheckInService.cs",
+              "RelativeDocumentMoniker": "gym-management-server\\Services\\CheckIns\\CheckInService.cs",
+              "ToolTip": "D:\\work\\gym-management-server\\gym-management-server\\Services\\CheckIns\\CheckInService.cs",
+              "RelativeToolTip": "gym-management-server\\Services\\CheckIns\\CheckInService.cs",
+              "ViewState": "AQIAAAoAAAAAAAAAAAA1wBcAAAAvAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-17T15:51:57.551Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "CheckInController.cs",
+              "DocumentMoniker": "D:\\work\\gym-management-server\\gym-management-server\\Controllers\\CheckInController.cs",
+              "RelativeDocumentMoniker": "gym-management-server\\Controllers\\CheckInController.cs",
+              "ToolTip": "D:\\work\\gym-management-server\\gym-management-server\\Controllers\\CheckInController.cs",
+              "RelativeToolTip": "gym-management-server\\Controllers\\CheckInController.cs",
+              "ViewState": "AQIAABEAAAAAAAAAAAAUwCcAAAA+AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-17T16:13:19.953Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "ICheckInRepository.cs",
+              "DocumentMoniker": "D:\\work\\gym-management-server\\gym-management-server\\Repositories\\CheckIns\\ICheckInRepository.cs",
+              "RelativeDocumentMoniker": "gym-management-server\\Repositories\\CheckIns\\ICheckInRepository.cs",
+              "ToolTip": "D:\\work\\gym-management-server\\gym-management-server\\Repositories\\CheckIns\\ICheckInRepository.cs",
+              "RelativeToolTip": "gym-management-server\\Repositories\\CheckIns\\ICheckInRepository.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAqwAsAAAAiAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-17T15:42:35.267Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\work\\gym-management-server\\gym-management-server\\Program.cs",
+              "RelativeDocumentMoniker": "gym-management-server\\Program.cs",
+              "ToolTip": "D:\\work\\gym-management-server\\gym-management-server\\Program.cs",
+              "RelativeToolTip": "gym-management-server\\Program.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABcAAAArAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-17T16:14:26.275Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "MemberRepository.cs",
+              "DocumentMoniker": "D:\\work\\gym-management-server\\gym-management-server\\Repositories\\Members\\MemberRepository.cs",
+              "RelativeDocumentMoniker": "gym-management-server\\Repositories\\Members\\MemberRepository.cs",
+              "ToolTip": "D:\\work\\gym-management-server\\gym-management-server\\Repositories\\Members\\MemberRepository.cs",
+              "RelativeToolTip": "gym-management-server\\Repositories\\Members\\MemberRepository.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABcAAAAtAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-17T15:44:56.324Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "IMemberRepository.cs.cs",
+              "DocumentMoniker": "D:\\work\\gym-management-server\\gym-management-server\\Repositories\\Members\\IMemberRepository.cs.cs",
+              "RelativeDocumentMoniker": "gym-management-server\\Repositories\\Members\\IMemberRepository.cs.cs",
+              "ToolTip": "D:\\work\\gym-management-server\\gym-management-server\\Repositories\\Members\\IMemberRepository.cs.cs",
+              "RelativeToolTip": "gym-management-server\\Repositories\\Members\\IMemberRepository.cs.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAoAAAAiAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-17T15:42:51.825Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

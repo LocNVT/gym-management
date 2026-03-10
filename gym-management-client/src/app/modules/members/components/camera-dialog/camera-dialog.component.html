@@ -1,0 +1,38 @@
+<h2 mat-dialog-title>Chụp ảnh - {{ data.memberName }}</h2>
+
+<mat-dialog-content class="camera-content">
+    <div class="error-msg" *ngIf="errorMessage">
+        <mat-icon>error</mat-icon> {{ errorMessage }}
+    </div>
+
+    <div class="camera-area">
+        <video #videoElement autoplay playsinline [hidden]="!!capturedImage"
+            [class.hidden]="!isCameraActive && !capturedImage"></video>
+        <canvas #canvasElement [hidden]="!capturedImage"></canvas>
+
+        <div class="placeholder" *ngIf="!isCameraActive && !capturedImage">
+            <mat-icon>photo_camera</mat-icon>
+            <p>Nhấn "Mở Camera" để bắt đầu</p>
+        </div>
+    </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-button (click)="cancel()">Hủy</button>
+
+    <button mat-raised-button color="primary" (click)="startCamera()" *ngIf="!isCameraActive && !capturedImage">
+        <mat-icon>videocam</mat-icon> Mở Camera
+    </button>
+
+    <button mat-raised-button color="accent" (click)="capture()" *ngIf="isCameraActive">
+        <mat-icon>camera</mat-icon> Chụp
+    </button>
+
+    <button mat-stroked-button (click)="retake()" *ngIf="capturedImage">
+        <mat-icon>replay</mat-icon> Chụp lại
+    </button>
+
+    <button mat-raised-button color="primary" (click)="save()" *ngIf="capturedImage">
+        <mat-icon>save</mat-icon> Lưu ảnh
+    </button>
+</mat-dialog-actions>

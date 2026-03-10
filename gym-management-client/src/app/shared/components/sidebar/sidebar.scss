@@ -1,0 +1,13 @@
+.active-link {
+    background-color: rgba(63, 81, 181, 0.1) !important;
+    color: #3f51b5 !important;
+}
+
+mat-nav-list {
+    padding-top: 8px;
+}
+
+a[mat-list-item] {
+    margin: 2px 8px;
+    border-radius: 8px;
+}

@@ -1,0 +1,24 @@
+<h2 class="page-title">Quản lý Chi phí</h2>
+
+<dx-data-grid [dataSource]="dataSource" [showBorders]="true" [rowAlternationEnabled]="true" [columnAutoWidth]="true"
+    [remoteOperations]="{ paging: true }">
+
+    <dxo-editing mode="popup" [allowAdding]="true" [allowUpdating]="true" [allowDeleting]="true">
+        <dxo-popup title="Thông tin Chi phí" [showTitle]="true" [width]="600" [height]="450"></dxo-popup>
+    </dxo-editing>
+    <dxo-filter-row [visible]="true"></dxo-filter-row>
+    <dxo-search-panel [visible]="true" placeholder="Tìm kiếm..."></dxo-search-panel>
+    <dxo-paging [pageSize]="10"></dxo-paging>
+    <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true"></dxo-pager>
+
+    <dxi-column dataField="expenseDate" caption="Ngày chi" dataType="date" format="dd/MM/yyyy"></dxi-column>
+    <dxi-column dataField="category" caption="Danh mục">
+        <dxo-lookup [dataSource]="categoryOptions" valueExpr="value" displayExpr="text"></dxo-lookup>
+    </dxi-column>
+    <dxi-column dataField="description" caption="Mô tả"></dxi-column>
+    <dxi-column dataField="amount" caption="Số tiền" dataType="number" format="#,##0 VNĐ"></dxi-column>
+    <dxi-column dataField="paymentMethod" caption="Phương thức TT">
+        <dxo-lookup [dataSource]="paymentMethodOptions" valueExpr="value" displayExpr="text"></dxo-lookup>
+    </dxi-column>
+    <dxi-column dataField="notes" caption="Ghi chú"></dxi-column>
+</dx-data-grid>

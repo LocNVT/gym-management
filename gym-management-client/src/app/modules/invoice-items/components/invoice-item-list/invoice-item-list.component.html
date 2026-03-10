@@ -1,0 +1,23 @@
+<h2 class="page-title">Quản lý Chi tiết Hóa đơn</h2>
+
+<dx-data-grid [dataSource]="dataSource" [showBorders]="true" [rowAlternationEnabled]="true" [columnAutoWidth]="true"
+    [remoteOperations]="{ paging: true }">
+
+    <dxo-editing mode="popup" [allowAdding]="true" [allowUpdating]="true" [allowDeleting]="true">
+        <dxo-popup title="Chi tiết Hóa đơn" [showTitle]="true" [width]="600" [height]="400"></dxo-popup>
+    </dxo-editing>
+    <dxo-filter-row [visible]="true"></dxo-filter-row>
+    <dxo-search-panel [visible]="true" placeholder="Tìm kiếm..."></dxo-search-panel>
+    <dxo-paging [pageSize]="10"></dxo-paging>
+    <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true"></dxo-pager>
+
+    <dxi-column dataField="invoiceId" caption="Hóa đơn">
+        <dxo-lookup [dataSource]="invoices" valueExpr="id" displayExpr="invoiceNumber"></dxo-lookup>
+    </dxi-column>
+    <dxi-column dataField="description" caption="Mô tả"></dxi-column>
+    <dxi-column dataField="quantity" caption="Số lượng" dataType="number"></dxi-column>
+    <dxi-column dataField="unitPrice" caption="Đơn giá" dataType="number" format="#,##0 VNĐ"></dxi-column>
+    <dxi-column dataField="servicePackageId" caption="Gói dịch vụ">
+        <dxo-lookup [dataSource]="servicePackages" valueExpr="id" displayExpr="name"></dxo-lookup>
+    </dxi-column>
+</dx-data-grid>
