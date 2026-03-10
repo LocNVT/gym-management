@@ -1,7 +1,3 @@
-Dưới đây là một **README mẫu cho dự án quản lý Gym**. Mình viết theo format phổ biến trên GitHub để dễ dùng cho project thật.
-
----
-
 # 🏋️ Gym Management System
 
 Hệ thống **Gym Management System** giúp quản lý hoạt động của phòng gym như quản lý hội viên, gói tập, huấn luyện viên, lịch tập và thanh toán.
