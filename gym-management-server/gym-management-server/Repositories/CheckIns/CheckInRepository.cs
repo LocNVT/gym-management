@@ -60,5 +60,59 @@ namespace gym_management_server.Repositories.CheckIns
             _db.Update(checkIn);
             await _db.SaveChangesAsync();
         }
+
+        public async Task<CheckIn?> GetActiveByMemberAsync(Guid memberId)
+        {
+            return await _db.CheckIns
+                .Where(x => x.MemberId == memberId && x.CheckOutTime == null)
+                .OrderByDescending(x => x.CheckInTime)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<(List<CheckIn> Items, int TotalCount)> GetByMemberPagedAsync(Guid memberId, int page, int pageSize)
+        {
+            var query = _db.CheckIns.Where(x => x.MemberId == memberId);
+            var totalCount = await query.CountAsync();
+            var items = await query
+                .OrderByDescending(x => x.CheckInTime)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+            return (items, totalCount);
+        }
+
+        public async Task<List<CheckIn>> GetActiveSessionsAsync()
+        {
+            return await _db.CheckIns
+                .Where(x => x.CheckOutTime == null)
+                .Include(x => x.Member)
+                .OrderBy(x => x.CheckInTime)
+                .ToListAsync();
+        }
+
+        public async Task<int> CountCheckInsBetweenAsync(DateTime from, DateTime to)
+        {
+            return await _db.CheckIns.CountAsync(x => x.CheckInTime >= from && x.CheckInTime < to);
+        }
+
+        public async Task<int> CountCheckOutsBetweenAsync(DateTime from, DateTime to)
+        {
+            return await _db.CheckIns.CountAsync(x =>
+                x.CheckOutTime != null && x.CheckOutTime >= from && x.CheckOutTime < to);
+        }
+
+        public async Task<int> CountCurrentlyInsideAsync()
+        {
+            return await _db.CheckIns.CountAsync(x => x.CheckOutTime == null);
+        }
+
+        public async Task<List<CheckIn>> GetRecentAsync(int count)
+        {
+            return await _db.CheckIns
+                .Include(x => x.Member)
+                .OrderByDescending(x => x.CheckOutTime ?? x.CheckInTime)
+                .Take(count)
+                .ToListAsync();
+        }
     }
 }

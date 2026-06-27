@@ -1,0 +1,16 @@
+# Build artifacts (.NET)
+**/bin/
+**/obj/
+
+# Frontend build output / deps
+**/dist/
+**/node_modules/
+
+# User-specific / IDE
+*.user
+.vs/
+.idea/
+
+# Local secrets / env
+**/appsettings.*.local.json
+*.env

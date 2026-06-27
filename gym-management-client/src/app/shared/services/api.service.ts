@@ -116,3 +116,64 @@ export class ExpenseService {
     update(id: string, data: any): Observable<any> { return this.http.put<any>(`${this.url}/${id}`, data); }
     delete(id: string): Observable<any> { return this.http.delete<any>(`${this.url}/${id}`); }
 }
+
+@Injectable({ providedIn: 'root' })
+export class TrainerService {
+    private url = `${API_BASE}/Trainer`;
+    constructor(private http: HttpClient) { }
+    getAll(page = 1, pageSize = 10): Observable<PaginatedResult<any>> {
+        const params = new HttpParams().set('pageNumber', page).set('pageSize', pageSize);
+        return this.http.get<PaginatedResult<any>>(this.url, { params });
+    }
+    getById(id: string): Observable<any> { return this.http.get<any>(`${this.url}/${id}`); }
+    create(data: any): Observable<any> { return this.http.post<any>(this.url, data); }
+    update(id: string, data: any): Observable<any> { return this.http.put<any>(`${this.url}/${id}`, data); }
+    delete(id: string): Observable<any> { return this.http.delete<any>(`${this.url}/${id}`); }
+}
+
+@Injectable({ providedIn: 'root' })
+export class AttendanceDeviceService {
+    private url = `${API_BASE}/AttendanceDevice`;
+    constructor(private http: HttpClient) { }
+    getAll(page = 1, pageSize = 10): Observable<PaginatedResult<any>> {
+        const params = new HttpParams().set('pageNumber', page).set('pageSize', pageSize);
+        return this.http.get<PaginatedResult<any>>(this.url, { params });
+    }
+    getById(id: string): Observable<any> { return this.http.get<any>(`${this.url}/${id}`); }
+    create(data: any): Observable<any> { return this.http.post<any>(this.url, data); }
+    update(id: string, data: any): Observable<any> { return this.http.put<any>(`${this.url}/${id}`, data); }
+    delete(id: string): Observable<any> { return this.http.delete<any>(`${this.url}/${id}`); }
+}
+
+@Injectable({ providedIn: 'root' })
+export class FingerprintService {
+    private url = `${API_BASE}/Fingerprint`;
+    constructor(private http: HttpClient) { }
+    getByMember(memberId: string): Observable<any[]> {
+        return this.http.get<any[]>(`${this.url}/member/${memberId}`);
+    }
+    register(data: any): Observable<any> { return this.http.post<any>(this.url, data); }
+    update(id: string, data: any): Observable<any> { return this.http.put<any>(`${this.url}/${id}`, data); }
+    delete(id: string): Observable<any> { return this.http.delete<any>(`${this.url}/${id}`); }
+    /** Verify a scan and toggle attendance (check-in / check-out). */
+    verify(data: any): Observable<any> { return this.http.post<any>(`${this.url}/verify`, data); }
+}
+
+@Injectable({ providedIn: 'root' })
+export class AttendanceService {
+    private url = `${API_BASE}/Attendance`;
+    constructor(private http: HttpClient) { }
+    getByMember(memberId: string, page = 1, pageSize = 10): Observable<PaginatedResult<any>> {
+        const params = new HttpParams().set('pageNumber', page).set('pageSize', pageSize);
+        return this.http.get<PaginatedResult<any>>(`${this.url}/member/${memberId}`, { params });
+    }
+    /** Members currently checked in (open sessions). */
+    getActive(): Observable<any[]> { return this.http.get<any[]>(`${this.url}/active`); }
+    /** Headline counts for a day (defaults to today). */
+    getSummary(): Observable<any> { return this.http.get<any>(`${this.url}/summary`); }
+    /** Recent check-in/out events across all members. */
+    getRecent(count = 20): Observable<any[]> {
+        const params = new HttpParams().set('count', count);
+        return this.http.get<any[]>(`${this.url}/recent`, { params });
+    }
+}

@@ -29,6 +29,14 @@ Hệ thống **Gym Management System** giúp quản lý hoạt động của ph�
 * Lịch sử giao dịch
 * Báo cáo doanh thu
 
+### 🖐️ Fingerprint Attendance
+
+* Đăng ký nhiều vân tay cho mỗi hội viên (chỉ lưu template đã mã hóa, không lưu ảnh)
+* Check-in / check-out tự động sau khi quét vân tay
+* Hỗ trợ thiết bị đa hãng (ZKTeco, Suprema, DigitalPersona) qua lớp trừu tượng phần cứng
+* Lịch sử điểm danh theo hội viên
+* 📖 Xem chi tiết: [docs/FingerprintAttendance.md](docs/FingerprintAttendance.md)
+
 ---
 
 # 🏗️ System Architecture

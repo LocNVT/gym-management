@@ -1,0 +1,55 @@
+<div class="dash-header">
+    <h2 class="page-title">Bảng điều khiển điểm danh</h2>
+    <div class="dash-meta">
+        <span *ngIf="lastUpdated" class="dash-muted">Cập nhật: {{ lastUpdated | date:'HH:mm:ss' }}</span>
+        <dx-button icon="refresh" text="Làm mới" stylingMode="text" (onClick)="refreshNow()"></dx-button>
+    </div>
+</div>
+
+<!-- KPI cards -->
+<div class="kpi-row">
+    <div class="kpi-card inside">
+        <div class="kpi-value">{{ summary.currentlyInside }}</div>
+        <div class="kpi-label">Đang ở trong phòng</div>
+    </div>
+    <div class="kpi-card checkin">
+        <div class="kpi-value">{{ summary.checkInsToday }}</div>
+        <div class="kpi-label">Check-in hôm nay</div>
+    </div>
+    <div class="kpi-card checkout">
+        <div class="kpi-value">{{ summary.checkOutsToday }}</div>
+        <div class="kpi-label">Check-out hôm nay</div>
+    </div>
+</div>
+
+<div class="dash-grids">
+    <!-- Currently inside -->
+    <section class="dash-panel">
+        <h3>Thành viên đang ở trong ({{ active.length }})</h3>
+        <dx-data-grid [dataSource]="active" [showBorders]="true" [columnAutoWidth]="true" keyExpr="checkInId"
+            [hoverStateEnabled]="true" noDataText="Không có ai đang ở trong">
+            <dxo-paging [pageSize]="10"></dxo-paging>
+            <dxi-column dataField="memberName" caption="Thành viên"></dxi-column>
+            <dxi-column dataField="checkInTime" caption="Giờ vào" dataType="date" format="HH:mm dd/MM"></dxi-column>
+            <dxi-column dataField="minutesInside" caption="Số phút" [width]="100"></dxi-column>
+        </dx-data-grid>
+    </section>
+
+    <!-- Recent activity -->
+    <section class="dash-panel">
+        <h3>Hoạt động gần đây</h3>
+        <dx-data-grid [dataSource]="recent" [showBorders]="true" [columnAutoWidth]="true" keyExpr="checkInId"
+            [hoverStateEnabled]="true" noDataText="Chưa có hoạt động">
+            <dxo-paging [pageSize]="10"></dxo-paging>
+            <dxi-column dataField="memberName" caption="Thành viên"></dxi-column>
+            <dxi-column dataField="action" caption="Hành động" cellTemplate="actionTpl" [width]="120"></dxi-column>
+            <dxi-column dataField="timestamp" caption="Thời gian" dataType="date" format="HH:mm:ss dd/MM"></dxi-column>
+
+            <div *dxTemplate="let cell of 'actionTpl'">
+                <span class="badge" [class.in]="cell.value === 'check-in'" [class.out]="cell.value === 'check-out'">
+                    {{ cell.value === 'check-in' ? 'Vào' : 'Ra' }}
+                </span>
+            </div>
+        </dx-data-grid>
+    </section>
+</div>

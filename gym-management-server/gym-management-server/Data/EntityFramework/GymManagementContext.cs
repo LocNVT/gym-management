@@ -1,11 +1,14 @@
 ﻿using gym_management_server.Entities.CheckIns;
+using gym_management_server.Entities.Devices;
 using gym_management_server.Entities.Expenses;
+using gym_management_server.Entities.Fingerprints;
 using gym_management_server.Entities.InvoiceItems;
 using gym_management_server.Entities.Invoices;
 using gym_management_server.Entities.MemberDataServices;
 using gym_management_server.Entities.Members;
 using gym_management_server.Entities.OtpTokens;
 using gym_management_server.Entities.ServicePackages;
+using gym_management_server.Entities.Trainers;
 using gym_management_server.Entities.Users;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,8 +26,11 @@ namespace gym_management_server.Data.EntityFramework
         public DbSet<Invoice> Invoices => Set<Invoice>();
         public DbSet<InvoiceItem> InvoiceItems => Set<InvoiceItem>();
         public DbSet<Expense> Expenses => Set<Expense>();
+        public DbSet<Trainer> Trainers => Set<Trainer>();
         public DbSet<User> Users => Set<User>();
         public DbSet<OtpToken> OtpTokens => Set<OtpToken>();
+        public DbSet<FingerprintTemplate> FingerprintTemplates => Set<FingerprintTemplate>();
+        public DbSet<AttendanceDevice> AttendanceDevices => Set<AttendanceDevice>();
 
 
         protected override void OnModelCreating(ModelBuilder b)
@@ -59,7 +65,32 @@ namespace gym_management_server.Data.EntityFramework
             b.Entity<CheckIn>(e =>
             {
                 e.HasOne(x => x.Member).WithMany(m => m.CheckIns).HasForeignKey(x => x.MemberId);
+                e.HasOne(x => x.Device).WithMany().HasForeignKey(x => x.DeviceId).OnDelete(DeleteBehavior.SetNull);
                 e.HasIndex(x => new { x.MemberId, x.CheckInTime });
+                // Fast lookup of a member's currently-open attendance session.
+                e.HasIndex(x => new { x.MemberId, x.CheckOutTime });
+            });
+
+            b.Entity<FingerprintTemplate>(e =>
+            {
+                e.HasOne(x => x.Member).WithMany(m => m.FingerprintTemplates).HasForeignKey(x => x.MemberId);
+                e.Property(x => x.Vendor).HasMaxLength(50).IsRequired();
+                e.Property(x => x.RowVersion).IsRowVersion();
+                e.HasIndex(x => x.MemberId);
+                // One active template per finger per member (filtered so soft-deleted rows don't collide).
+                e.HasIndex(x => new { x.MemberId, x.FingerPosition })
+                    .IsUnique()
+                    .HasFilter("[IsDeleted] = 0");
+            });
+
+            b.Entity<AttendanceDevice>(e =>
+            {
+                e.Property(x => x.Name).HasMaxLength(150).IsRequired();
+                e.Property(x => x.Vendor).HasMaxLength(50).IsRequired();
+                e.Property(x => x.Location).HasMaxLength(200);
+                e.Property(x => x.SerialNumber).HasMaxLength(100);
+                e.Property(x => x.RowVersion).IsRowVersion();
+                e.HasIndex(x => x.SerialNumber).IsUnique().HasFilter("[SerialNumber] IS NOT NULL");
             });
 
 
@@ -79,6 +110,14 @@ namespace gym_management_server.Data.EntityFramework
             b.Entity<Expense>(e =>
             {
                 e.Property(x => x.Amount).HasColumnType("decimal(18,2)");
+            });
+
+
+            b.Entity<Trainer>(e =>
+            {
+                e.Property(x => x.HourlyRate).HasColumnType("decimal(18,2)");
+                e.Property(x => x.FullName).HasMaxLength(150).IsRequired();
+                e.Property(x => x.Email).HasMaxLength(150);
             });
 
 

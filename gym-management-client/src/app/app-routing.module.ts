@@ -43,6 +43,26 @@ const routes: Routes = [
     loadChildren: () => import('./modules/expenses/expenses.module').then(m => m.ExpensesModule),
     canActivate: [AuthGuard]
   },
+  {
+    path: 'trainers',
+    loadChildren: () => import('./modules/trainers/trainers.module').then(m => m.TrainersModule),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'attendance-dashboard',
+    loadChildren: () => import('./modules/attendance-dashboard/attendance-dashboard.module').then(m => m.AttendanceDashboardModule),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'fingerprint-attendance',
+    loadChildren: () => import('./modules/fingerprint-attendance/fingerprint-attendance.module').then(m => m.FingerprintAttendanceModule),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'attendance-devices',
+    loadChildren: () => import('./modules/attendance-devices/attendance-devices.module').then(m => m.AttendanceDevicesModule),
+    canActivate: [AuthGuard]
+  },
   { path: '**', redirectTo: '/members' }
 ];
 

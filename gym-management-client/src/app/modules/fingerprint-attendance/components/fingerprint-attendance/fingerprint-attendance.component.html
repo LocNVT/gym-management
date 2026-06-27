@@ -1,0 +1,67 @@
+<h2 class="page-title">Điểm danh bằng vân tay</h2>
+
+<div class="fp-layout">
+
+    <!-- Verify / Kiosk panel -->
+    <section class="fp-card">
+        <h3>Quét vân tay (Check-in / Check-out)</h3>
+
+        <label>Thiết bị</label>
+        <dx-select-box [dataSource]="devices" displayExpr="name" valueExpr="id"
+            [(value)]="verifyDeviceId" placeholder="Chọn thiết bị..."></dx-select-box>
+
+        <label>Mã vân tay quét (seed)</label>
+        <dx-text-box [(value)]="verifySeed" placeholder="Nhập seed giống lúc đăng ký..."></dx-text-box>
+
+        <dx-button class="fp-action" text="Quét & Điểm danh" type="default" (onClick)="verify()"></dx-button>
+
+        <div class="fp-result" *ngIf="lastResult"
+            [class.matched]="lastResult.matched" [class.unmatched]="!lastResult.matched">
+            <ng-container *ngIf="lastResult.matched; else noMatch">
+                <strong>{{ lastResult.action === 'check-in' ? 'CHECK-IN' : 'CHECK-OUT' }}</strong>
+                <div>{{ lastResult.memberName }}</div>
+                <div class="fp-muted">Điểm khớp: {{ lastResult.score }} · {{ lastResult.timestamp | date:'HH:mm:ss dd/MM/yyyy' }}</div>
+            </ng-container>
+            <ng-template #noMatch>
+                <strong>KHÔNG KHỚP</strong>
+                <div class="fp-muted">Điểm cao nhất: {{ lastResult.score }}</div>
+            </ng-template>
+        </div>
+    </section>
+
+    <!-- Enrolment panel -->
+    <section class="fp-card">
+        <h3>Đăng ký vân tay cho thành viên</h3>
+
+        <label>Thành viên</label>
+        <dx-select-box [dataSource]="members" displayExpr="fullName" valueExpr="id"
+            [(value)]="enrollMemberId" (onValueChanged)="onEnrollMemberChange()"
+            [searchEnabled]="true" placeholder="Chọn thành viên..."></dx-select-box>
+
+        <label>Ngón tay</label>
+        <dx-select-box [dataSource]="fingerPositions" displayExpr="text" valueExpr="value"
+            [(value)]="enrollFinger"></dx-select-box>
+
+        <label>Mã vân tay (seed)</label>
+        <dx-text-box [(value)]="enrollSeed" placeholder="Ví dụ: nguyen-van-a-thumb"></dx-text-box>
+
+        <dx-button class="fp-action" text="Đăng ký vân tay" type="success" (onClick)="enroll()"></dx-button>
+
+        <h4 *ngIf="enrollMemberId">Vân tay đã đăng ký</h4>
+        <dx-data-grid *ngIf="enrollMemberId" [dataSource]="memberTemplates" [showBorders]="true"
+            [columnAutoWidth]="true" keyExpr="id">
+            <dxi-column dataField="fingerPosition" caption="Ngón tay" cellTemplate="fingerTpl"></dxi-column>
+            <dxi-column dataField="vendor" caption="Hãng"></dxi-column>
+            <dxi-column dataField="quality" caption="Chất lượng"></dxi-column>
+            <dxi-column dataField="createdAt" caption="Ngày tạo" dataType="date" format="dd/MM/yyyy HH:mm"></dxi-column>
+            <dxi-column caption="" [width]="90" cellTemplate="deleteTpl"></dxi-column>
+
+            <div *dxTemplate="let cell of 'fingerTpl'">{{ fingerLabel(cell.value) }}</div>
+            <div *dxTemplate="let cell of 'deleteTpl'">
+                <dx-button icon="trash" type="danger" stylingMode="text"
+                    (onClick)="deleteTemplate(cell.data.id)"></dx-button>
+            </div>
+        </dx-data-grid>
+    </section>
+
+</div>

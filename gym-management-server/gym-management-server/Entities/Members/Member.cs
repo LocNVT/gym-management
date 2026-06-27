@@ -1,4 +1,5 @@
 ﻿using gym_management_server.Entities.CheckIns;
+using gym_management_server.Entities.Fingerprints;
 using gym_management_server.Entities.Invoices;
 using gym_management_server.Entities.MemberDataServices;
 
@@ -28,5 +29,6 @@ namespace gym_management_server.Entities.Members
         public List<MemberDataService> MemberServices { get; set; } = new();
         public List<CheckIn> CheckIns { get; set; } = new();
         public List<Invoice> Invoices { get; set; } = new();
+        public List<FingerprintTemplate> FingerprintTemplates { get; set; } = new();
     }
 }

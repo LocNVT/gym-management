@@ -31,6 +31,12 @@ namespace gym_management_server.Migrations
                     b.Property<DateTime>("CheckInTime")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("CheckOutTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeviceId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("MemberId")
                         .HasColumnType("uniqueidentifier");
 
@@ -40,11 +46,71 @@ namespace gym_management_server.Migrations
                     b.Property<string>("Notes")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("OperatorUserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("DeviceId");
 
                     b.HasIndex("MemberId", "CheckInTime");
 
+                    b.HasIndex("MemberId", "CheckOutTime");
+
                     b.ToTable("CheckIns");
+                });
+
+            modelBuilder.Entity("gym_management_server.Entities.Devices.AttendanceDevice", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Location")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("SerialNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Vendor")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SerialNumber")
+                        .IsUnique()
+                        .HasFilter("[SerialNumber] IS NOT NULL");
+
+                    b.ToTable("AttendanceDevices");
                 });
 
             modelBuilder.Entity("gym_management_server.Entities.Expenses.Expense", b =>
@@ -75,6 +141,58 @@ namespace gym_management_server.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Expenses");
+                });
+
+            modelBuilder.Entity("gym_management_server.Entities.Fingerprints.FingerprintTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte>("FingerPosition")
+                        .HasColumnType("tinyint");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte>("Quality")
+                        .HasColumnType("tinyint");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<byte[]>("Template")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Vendor")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MemberId");
+
+                    b.HasIndex("MemberId", "FingerPosition")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.ToTable("FingerprintTemplates");
                 });
 
             modelBuilder.Entity("gym_management_server.Entities.InvoiceItems.InvoiceItem", b =>
@@ -319,6 +437,41 @@ namespace gym_management_server.Migrations
                     b.ToTable("ServicePackages");
                 });
 
+            modelBuilder.Entity("gym_management_server.Entities.Trainers.Trainer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<decimal>("HourlyRate")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Specialty")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte>("Status")
+                        .HasColumnType("tinyint");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Trainers");
+                });
+
             modelBuilder.Entity("gym_management_server.Entities.Users.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -384,8 +537,26 @@ namespace gym_management_server.Migrations
 
             modelBuilder.Entity("gym_management_server.Entities.CheckIns.CheckIn", b =>
                 {
+                    b.HasOne("gym_management_server.Entities.Devices.AttendanceDevice", "Device")
+                        .WithMany()
+                        .HasForeignKey("DeviceId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("gym_management_server.Entities.Members.Member", "Member")
                         .WithMany("CheckIns")
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Device");
+
+                    b.Navigation("Member");
+                });
+
+            modelBuilder.Entity("gym_management_server.Entities.Fingerprints.FingerprintTemplate", b =>
+                {
+                    b.HasOne("gym_management_server.Entities.Members.Member", "Member")
+                        .WithMany("FingerprintTemplates")
                         .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -451,6 +622,8 @@ namespace gym_management_server.Migrations
             modelBuilder.Entity("gym_management_server.Entities.Members.Member", b =>
                 {
                     b.Navigation("CheckIns");
+
+                    b.Navigation("FingerprintTemplates");
 
                     b.Navigation("Invoices");
 

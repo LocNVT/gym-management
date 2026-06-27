@@ -1,0 +1,23 @@
+<h2 class="page-title">Quản lý Huấn luyện viên</h2>
+
+<dx-data-grid [dataSource]="dataSource" [showBorders]="true" [rowAlternationEnabled]="true" [columnAutoWidth]="true"
+    [remoteOperations]="{ paging: true }">
+
+    <dxo-editing mode="popup" [allowAdding]="true" [allowUpdating]="true" [allowDeleting]="true">
+        <dxo-popup title="Thông tin Huấn luyện viên" [showTitle]="true" [width]="600" [height]="450"></dxo-popup>
+    </dxo-editing>
+    <dxo-filter-row [visible]="true"></dxo-filter-row>
+    <dxo-search-panel [visible]="true" placeholder="Tìm kiếm..."></dxo-search-panel>
+    <dxo-paging [pageSize]="10"></dxo-paging>
+    <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true"></dxo-pager>
+
+    <dxi-column dataField="fullName" caption="Họ tên"></dxi-column>
+    <dxi-column dataField="phoneNumber" caption="Số điện thoại"></dxi-column>
+    <dxi-column dataField="email" caption="Email"></dxi-column>
+    <dxi-column dataField="specialty" caption="Chuyên môn"></dxi-column>
+    <dxi-column dataField="hourlyRate" caption="Lương/giờ" dataType="number" format="#,##0 VNĐ"></dxi-column>
+    <dxi-column dataField="status" caption="Trạng thái">
+        <dxo-lookup [dataSource]="statusOptions" valueExpr="value" displayExpr="text"></dxo-lookup>
+    </dxi-column>
+    <dxi-column dataField="notes" caption="Ghi chú"></dxi-column>
+</dx-data-grid>

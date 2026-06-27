@@ -146,6 +146,28 @@ export interface MemberDataServiceInput {
     updatedAt?: string;
 }
 
+// ============ Trainer ============
+export interface Trainer {
+    id: string;
+    fullName: string;
+    phoneNumber?: string;
+    email?: string;
+    specialty?: string;
+    hourlyRate: number;
+    status: number;
+    notes?: string;
+}
+
+export interface TrainerInput {
+    fullName: string;
+    phoneNumber?: string;
+    email?: string;
+    specialty?: string;
+    hourlyRate: number;
+    status: number;
+    notes?: string;
+}
+
 // ============ ServicePackage ============
 export interface ServicePackage {
     id: string;
@@ -164,4 +186,69 @@ export interface ServicePackageInput {
     durationDays: number;
     maxCheckins?: number;
     isActive: boolean;
+}
+
+// ============ Fingerprint Attendance ============
+export interface FingerprintTemplate {
+    id: string;
+    memberId: string;
+    fingerPosition: number;
+    vendor: string;
+    quality: number;
+    createdAt: string;
+    updatedAt?: string;
+}
+
+export interface FingerprintTemplateInput {
+    memberId: string;
+    fingerPosition: number;
+    capturedTemplate: string; // base64 template bytes (never an image)
+    vendor: string;
+    quality: number;
+}
+
+export interface VerifyFingerprintInput {
+    deviceId: string;
+    capturedTemplate: string;
+    operatorUserId?: string;
+}
+
+export interface VerifyFingerprintResult {
+    matched: boolean;
+    score: number;
+    memberId?: string;
+    memberName?: string;
+    action: 'check-in' | 'check-out' | 'none';
+    checkInId?: string;
+    timestamp?: string;
+}
+
+export interface AttendanceDevice {
+    id: string;
+    name: string;
+    location?: string;
+    vendor: string;
+    serialNumber?: string;
+    isActive: boolean;
+    createdAt: string;
+    updatedAt?: string;
+}
+
+export interface AttendanceDeviceInput {
+    name: string;
+    location?: string;
+    vendor: string;
+    serialNumber?: string;
+    isActive: boolean;
+}
+
+export interface Attendance {
+    id: string;
+    memberId: string;
+    checkInTime: string;
+    checkOutTime?: string;
+    method: number;
+    deviceId?: string;
+    operatorUserId?: string;
+    notes?: string;
 }

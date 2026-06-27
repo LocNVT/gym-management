@@ -1,0 +1,140 @@
+### Fingerprint Attendance — API examples
+### Walkthrough: log in -> create device -> create member -> enrol -> verify (check-in) -> verify (check-out) -> history
+
+@host = http://localhost:5089
+@token = PASTE_JWT_FROM_LOGIN_HERE
+# Required only if Fingerprint:DeviceApiKey is configured on the server; otherwise ignored.
+@deviceApiKey = PASTE_DEVICE_API_KEY_HERE
+@deviceId = PASTE_DEVICE_ID_HERE
+@memberId = PASTE_MEMBER_ID_HERE
+@templateId = PASTE_TEMPLATE_ID_HERE
+
+# NOTE: capturedTemplate is a base64-encoded vendor template (NEVER a raw image).
+# For the Mock provider, any base64 string works; the SAME string must be used at
+# enrol and verify time to produce a match. The value below is base64("demo-finger-001...").
+@template = ZGVtby1maW5nZXItMDAxLTAwMDAwMDAwMDAwMDAwMDAwMDA=
+
+### 0. Log in as admin to obtain a JWT (admin can manage devices)
+POST {{host}}/api/Auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "Matkhau@2"
+}
+
+### 1. Create an attendance device (Admin only) -> copy "id" into @deviceId
+POST {{host}}/api/AttendanceDevice
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Front Door Scanner",
+  "location": "Main entrance",
+  "vendor": "Mock",
+  "serialNumber": "SN-0001",
+  "isActive": true
+}
+
+### 2. List devices
+GET {{host}}/api/AttendanceDevice?pageNumber=1&pageSize=10
+Authorization: Bearer {{token}}
+
+### 3. Create a member -> copy "id" into @memberId
+POST {{host}}/api/Member
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "fullName": "Nguyen Van A",
+  "phoneNumber": "0987654321",
+  "status": 1
+}
+
+### 4. Register (enrol) a fingerprint for the member -> copy "id" into @templateId
+POST {{host}}/api/Fingerprint
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "memberId": "{{memberId}}",
+  "fingerPosition": 1,
+  "capturedTemplate": "{{template}}",
+  "vendor": "Mock",
+  "quality": 90
+}
+
+### 5. List the member's registered fingerprints (template bytes are never returned)
+GET {{host}}/api/Fingerprint/member/{{memberId}}
+Authorization: Bearer {{token}}
+
+### 6. Update a fingerprint (re-enrol the same finger)
+PUT {{host}}/api/Fingerprint/{{templateId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "memberId": "{{memberId}}",
+  "fingerPosition": 1,
+  "capturedTemplate": "{{template}}",
+  "vendor": "Mock",
+  "quality": 95
+}
+
+### 7. Verify a scan -> first scan creates a CHECK-IN (no auth: called by the device)
+POST {{host}}/api/Fingerprint/verify
+Content-Type: application/json
+X-Device-Api-Key: {{deviceApiKey}}
+
+{
+  "deviceId": "{{deviceId}}",
+  "capturedTemplate": "{{template}}"
+}
+
+### 8. Verify the same scan again -> performs CHECK-OUT (active session is closed)
+POST {{host}}/api/Fingerprint/verify
+Content-Type: application/json
+X-Device-Api-Key: {{deviceApiKey}}
+
+{
+  "deviceId": "{{deviceId}}",
+  "capturedTemplate": "{{template}}"
+}
+
+### 9. Member attendance history (check-in / check-out sessions, newest first)
+GET {{host}}/api/Attendance/member/{{memberId}}?pageNumber=1&pageSize=10
+Authorization: Bearer {{token}}
+
+### 10. Delete (soft-delete) a fingerprint
+DELETE {{host}}/api/Fingerprint/{{templateId}}
+Authorization: Bearer {{token}}
+
+### 11. Negative: verify with an unknown device -> 400 Bad Request
+POST {{host}}/api/Fingerprint/verify
+Content-Type: application/json
+X-Device-Api-Key: {{deviceApiKey}}
+
+{
+  "deviceId": "00000000-0000-0000-0000-000000000000",
+  "capturedTemplate": "{{template}}"
+}
+
+### 11b. Negative: verify without the device API key -> 401 (only when DeviceApiKey is configured)
+POST {{host}}/api/Fingerprint/verify
+Content-Type: application/json
+
+{
+  "deviceId": "{{deviceId}}",
+  "capturedTemplate": "{{template}}"
+}
+
+### 12. Negative: enrol without a token -> 401 Unauthorized
+POST {{host}}/api/Fingerprint
+Content-Type: application/json
+
+{
+  "memberId": "{{memberId}}",
+  "fingerPosition": 0,
+  "capturedTemplate": "{{template}}",
+  "vendor": "Mock"
+}
