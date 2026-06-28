@@ -8,19 +8,17 @@ body {
 
 body {
   margin: 0;
-  font-family: Roboto, "Helvetica Neue", sans-serif;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+  font-size: 14px;
+  color: #1a1f36;
+  background: #f4f5f7;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Custom styles for better UX */
-.full-width {
-  width: 100%;
-}
+/* ── Layout utilities ── */
+.full-width { width: 100%; }
+.text-center { text-align: center; }
 
-.text-center {
-  text-align: center;
-}
-
-/* Loading spinner center */
 .loading-container {
   display: flex;
   justify-content: center;
@@ -28,9 +26,81 @@ body {
   height: 200px;
 }
 
-/* Responsive utilities */
+/* ── Page header ── */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #1a1f36;
+  letter-spacing: -0.2px;
+}
+
+/* ── Content card (wraps data grids) ── */
+.content-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07), 0 4px 16px rgba(0, 0, 0, 0.04);
+  padding: 24px;
+  overflow: hidden;
+}
+
+/* ── DevExtreme overrides ── */
+.dx-datagrid {
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+  font-size: 13.5px;
+  color: #1a1f36;
+  border: none !important;
+  background: transparent;
+}
+
+.dx-datagrid-headers {
+  background: #f8f9fb;
+  border-bottom: 2px solid #e8eaf0 !important;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: #6b7280;
+}
+
+.dx-datagrid-rowsview .dx-row:hover > td {
+  background-color: #f0f4ff !important;
+}
+
+.dx-datagrid-rowsview .dx-row-alt > td {
+  background-color: #fafbfd !important;
+}
+
+.dx-toolbar {
+  background: transparent;
+  padding: 0 0 16px;
+}
+
+.dx-searchbox {
+  border-radius: 8px !important;
+}
+
+.dx-button {
+  border-radius: 8px !important;
+}
+
+.dx-button-mode-contained.dx-button-default {
+  background: #3f51b5 !important;
+  border-color: #3f51b5 !important;
+}
+
+.dx-button-mode-contained.dx-button-default:hover {
+  background: #303f9f !important;
+}
+
+/* ── Responsive ── */
 @media (max-width: 768px) {
-  .hide-mobile {
-    display: none !important;
-  }
+  .hide-mobile { display: none !important; }
 }

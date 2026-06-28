@@ -1,22 +1,26 @@
-<h2 class="page-title">Quản lý Check-In</h2>
+<div class="page-header">
+    <h2 class="page-title">Quản lý Check-In</h2>
+</div>
 
-<dx-data-grid [dataSource]="dataSource" [showBorders]="true" [rowAlternationEnabled]="true" [columnAutoWidth]="true"
-    [remoteOperations]="{ paging: true }">
+<div class="content-card">
+    <dx-data-grid [dataSource]="dataSource" [showBorders]="false" [rowAlternationEnabled]="true" [columnAutoWidth]="true"
+        [remoteOperations]="{ paging: true }">
 
-    <dxo-editing mode="popup" [allowAdding]="true" [allowUpdating]="true" [allowDeleting]="true">
-        <dxo-popup title="Thông tin Check-In" [showTitle]="true" [width]="600" [height]="400"></dxo-popup>
-    </dxo-editing>
-    <dxo-filter-row [visible]="true"></dxo-filter-row>
-    <dxo-search-panel [visible]="true" placeholder="Tìm kiếm..."></dxo-search-panel>
-    <dxo-paging [pageSize]="10"></dxo-paging>
-    <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true"></dxo-pager>
+        <dxo-editing mode="popup" [allowAdding]="true" [allowUpdating]="true" [allowDeleting]="true">
+            <dxo-popup title="Thông tin Check-In" [showTitle]="true" [width]="600" [height]="400"></dxo-popup>
+        </dxo-editing>
+        <dxo-filter-row [visible]="true"></dxo-filter-row>
+        <dxo-search-panel [visible]="true" placeholder="Tìm kiếm..."></dxo-search-panel>
+        <dxo-paging [pageSize]="10"></dxo-paging>
+        <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true"></dxo-pager>
 
-    <dxi-column dataField="memberId" caption="Thành viên">
-        <dxo-lookup [dataSource]="members" valueExpr="id" displayExpr="fullName"></dxo-lookup>
-    </dxi-column>
-    <dxi-column dataField="checkInTime" caption="Thời gian" dataType="datetime" format="dd/MM/yyyy HH:mm"></dxi-column>
-    <dxi-column dataField="method" caption="Phương thức">
-        <dxo-lookup [dataSource]="methodOptions" valueExpr="value" displayExpr="text"></dxo-lookup>
-    </dxi-column>
-    <dxi-column dataField="notes" caption="Ghi chú"></dxi-column>
-</dx-data-grid>
+        <dxi-column dataField="memberId" caption="Thành viên">
+            <dxo-lookup [dataSource]="members" valueExpr="id" displayExpr="fullName"></dxo-lookup>
+        </dxi-column>
+        <dxi-column dataField="checkInTime" caption="Thời gian" dataType="datetime" format="dd/MM/yyyy HH:mm"></dxi-column>
+        <dxi-column dataField="method" caption="Phương thức">
+            <dxo-lookup [dataSource]="methodOptions" valueExpr="value" displayExpr="text"></dxo-lookup>
+        </dxi-column>
+        <dxi-column dataField="notes" caption="Ghi chú"></dxi-column>
+    </dx-data-grid>
+</div>

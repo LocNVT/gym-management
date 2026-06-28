@@ -1,6 +1,17 @@
-<mat-nav-list>
-    <a mat-list-item *ngFor="let item of menuItems" [routerLink]="item.route" routerLinkActive="active-link">
-        <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
-        <span matListItemTitle>{{ item.label }}</span>
-    </a>
-</mat-nav-list>
+<div class="sidebar-brand">
+    <mat-icon class="brand-icon">fitness_center</mat-icon>
+    <span class="brand-name">FitGym</span>
+</div>
+
+<nav class="sidebar-nav">
+    <div class="nav-group" *ngFor="let group of menuGroups">
+        <div class="nav-group-title">{{ group.title }}</div>
+        <a class="nav-item"
+           *ngFor="let item of group.items"
+           [routerLink]="item.route"
+           routerLinkActive="active">
+            <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
+            <span class="nav-label">{{ item.label }}</span>
+        </a>
+    </div>
+</nav>

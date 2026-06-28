@@ -1,16 +1,19 @@
-<mat-toolbar color="primary" class="header" *ngIf="authService.isAuthenticated()">
-  <span class="logo">
-    <mat-icon>fitness_center</mat-icon>
-    FitGym Manager
-  </span>
-  <span class="spacer"></span>
-  <button mat-icon-button [matMenuTriggerFor]="userMenu">
-    <mat-icon>account_circle</mat-icon>
-  </button>
-  <mat-menu #userMenu="matMenu">
-    <button mat-menu-item (click)="logout()">
-      <mat-icon>logout</mat-icon>
-      <span>Đăng xuất</span>
-    </button>
-  </mat-menu>
+<mat-toolbar class="topbar" *ngIf="authService.isAuthenticated()">
+    <span class="spacer"></span>
+
+    <div class="topbar-right">
+        <button mat-icon-button class="user-btn" [matMenuTriggerFor]="userMenu">
+            <div class="user-avatar">
+                <mat-icon>person</mat-icon>
+            </div>
+        </button>
+        <span class="username">{{ displayName }}</span>
+    </div>
+
+    <mat-menu #userMenu="matMenu" class="user-menu">
+        <button mat-menu-item (click)="logout()">
+            <mat-icon>logout</mat-icon>
+            <span>Đăng xuất</span>
+        </button>
+    </mat-menu>
 </mat-toolbar>

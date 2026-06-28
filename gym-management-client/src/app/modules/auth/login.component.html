@@ -1,14 +1,19 @@
 <div class="login-wrapper">
-    <mat-card class="login-card">
-        <mat-card-header>
-            <div class="login-header">
-                <mat-icon class="logo-icon">fitness_center</mat-icon>
-                <h1>FitGym Manager</h1>
-                <p>Đăng nhập để tiếp tục</p>
-            </div>
-        </mat-card-header>
+    <!-- Left branding panel -->
+    <div class="login-left">
+        <div class="brand-hero">
+            <mat-icon class="hero-icon">fitness_center</mat-icon>
+            <h1 class="hero-title">FitGym Manager</h1>
+            <p class="hero-sub">Hệ thống quản lý phòng tập chuyên nghiệp</p>
+        </div>
+    </div>
 
-        <mat-card-content>
+    <!-- Right form panel -->
+    <div class="login-right">
+        <div class="login-form-wrap">
+            <h2 class="form-heading">Đăng nhập</h2>
+            <p class="form-subheading">Nhập thông tin tài khoản của bạn</p>
+
             <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
                 <mat-form-field appearance="outline" class="full-width">
                     <mat-label>Tên đăng nhập</mat-label>
@@ -38,11 +43,9 @@
                 </button>
             </form>
 
-            <div class="divider">
-                <span>hoặc</span>
-            </div>
+            <div class="divider"><span>hoặc</span></div>
 
             <div #googleBtn class="google-btn-container"></div>
-        </mat-card-content>
-    </mat-card>
+        </div>
+    </div>
 </div>

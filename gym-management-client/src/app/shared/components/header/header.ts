@@ -10,6 +10,11 @@ import { AuthService } from '../../services/auth.service';
 export class HeaderComponent {
   constructor(public authService: AuthService) { }
 
+  get displayName(): string {
+    const user = this.authService.getUser();
+    return user?.fullName || user?.username || 'Admin';
+  }
+
   logout(): void {
     this.authService.logout();
   }

@@ -2,21 +2,24 @@
     <h2 class="page-title">Bảng điều khiển điểm danh</h2>
     <div class="dash-meta">
         <span *ngIf="lastUpdated" class="dash-muted">Cập nhật: {{ lastUpdated | date:'HH:mm:ss' }}</span>
-        <dx-button icon="refresh" text="Làm mới" stylingMode="text" (onClick)="refreshNow()"></dx-button>
+        <dx-button icon="refresh" text="Làm mới" stylingMode="outlined" (onClick)="refreshNow()"></dx-button>
     </div>
 </div>
 
 <!-- KPI cards -->
 <div class="kpi-row">
     <div class="kpi-card inside">
+        <mat-icon class="kpi-icon">people</mat-icon>
         <div class="kpi-value">{{ summary.currentlyInside }}</div>
         <div class="kpi-label">Đang ở trong phòng</div>
     </div>
     <div class="kpi-card checkin">
+        <mat-icon class="kpi-icon">login</mat-icon>
         <div class="kpi-value">{{ summary.checkInsToday }}</div>
         <div class="kpi-label">Check-in hôm nay</div>
     </div>
     <div class="kpi-card checkout">
+        <mat-icon class="kpi-icon">logout</mat-icon>
         <div class="kpi-value">{{ summary.checkOutsToday }}</div>
         <div class="kpi-label">Check-out hôm nay</div>
     </div>
@@ -24,25 +27,28 @@
 
 <div class="dash-grids">
     <!-- Currently inside -->
-    <section class="dash-panel">
-        <h3>Thành viên đang ở trong ({{ active.length }})</h3>
-        <dx-data-grid [dataSource]="active" [showBorders]="true" [columnAutoWidth]="true" keyExpr="checkInId"
+    <div class="dash-panel">
+        <div class="panel-title">
+            Thành viên đang ở trong
+            <span class="count-badge">{{ active.length }}</span>
+        </div>
+        <dx-data-grid [dataSource]="active" [showBorders]="false" [columnAutoWidth]="true" keyExpr="checkInId"
             [hoverStateEnabled]="true" noDataText="Không có ai đang ở trong">
             <dxo-paging [pageSize]="10"></dxo-paging>
             <dxi-column dataField="memberName" caption="Thành viên"></dxi-column>
             <dxi-column dataField="checkInTime" caption="Giờ vào" dataType="date" format="HH:mm dd/MM"></dxi-column>
-            <dxi-column dataField="minutesInside" caption="Số phút" [width]="100"></dxi-column>
+            <dxi-column dataField="minutesInside" caption="Số phút" [width]="90"></dxi-column>
         </dx-data-grid>
-    </section>
+    </div>
 
     <!-- Recent activity -->
-    <section class="dash-panel">
-        <h3>Hoạt động gần đây</h3>
-        <dx-data-grid [dataSource]="recent" [showBorders]="true" [columnAutoWidth]="true" keyExpr="checkInId"
+    <div class="dash-panel">
+        <div class="panel-title">Hoạt động gần đây</div>
+        <dx-data-grid [dataSource]="recent" [showBorders]="false" [columnAutoWidth]="true" keyExpr="checkInId"
             [hoverStateEnabled]="true" noDataText="Chưa có hoạt động">
             <dxo-paging [pageSize]="10"></dxo-paging>
             <dxi-column dataField="memberName" caption="Thành viên"></dxi-column>
-            <dxi-column dataField="action" caption="Hành động" cellTemplate="actionTpl" [width]="120"></dxi-column>
+            <dxi-column dataField="action" caption="Hành động" cellTemplate="actionTpl" [width]="110"></dxi-column>
             <dxi-column dataField="timestamp" caption="Thời gian" dataType="date" format="HH:mm:ss dd/MM"></dxi-column>
 
             <div *dxTemplate="let cell of 'actionTpl'">
@@ -51,5 +57,5 @@
                 </span>
             </div>
         </dx-data-grid>
-    </section>
+    </div>
 </div>
