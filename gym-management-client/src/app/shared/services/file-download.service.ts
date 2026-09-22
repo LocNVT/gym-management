@@ -17,9 +17,12 @@ export class FileDownloadService {
         // when the download is scheduled — so revoke it on the next tick, not in
         // the same synchronous breath as click().
         document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        setTimeout(() => URL.revokeObjectURL(url), 0);
+        try {
+            link.click();
+        } finally {
+            document.body.removeChild(link);
+            setTimeout(() => URL.revokeObjectURL(url), 0);
+        }
     }
 
     download(url: string, fallbackName: string, params?: Record<string, string>): Observable<void> {
