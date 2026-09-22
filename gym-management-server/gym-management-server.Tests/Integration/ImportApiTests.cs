@@ -193,5 +193,86 @@ namespace gym_management_server.Tests.Integration
             Assert.Contains("đã tồn tại", message);
             Assert.DoesNotContain("đã bị xóa", message);
         }
+
+        // Upload guards -- all three are implemented correctly by inspection today, but nothing
+        // would catch a regression without a test.
+
+        [Fact]
+        public async Task An_upload_over_5MB_is_rejected_with_a_400()
+        {
+            var oversized = new byte[5 * 1024 * 1024 + 1];
+            var content = new MultipartFormDataContent();
+            content.Add(new ByteArrayContent(oversized), "file", "import.xlsx");
+
+            var response = await _factory.CreateAuthenticatedClient(0)
+                .PostAsync("/api/Member/import?dryRun=true", content);
+
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            var body = await response.Content.ReadFromJsonAsync<JsonElement>();
+            Assert.Contains("5 MB", body.GetProperty("message").GetString());
+        }
+
+        [Fact]
+        public async Task A_non_xlsx_upload_is_rejected_with_a_400()
+        {
+            var content = new MultipartFormDataContent();
+            content.Add(new ByteArrayContent(new byte[] { 1, 2, 3, 4 }), "file", "import.txt");
+
+            var response = await _factory.CreateAuthenticatedClient(0)
+                .PostAsync("/api/Member/import?dryRun=true", content);
+
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            var body = await response.Content.ReadFromJsonAsync<JsonElement>();
+            Assert.Contains(".xlsx", body.GetProperty("message").GetString());
+        }
+
+        [Fact]
+        public async Task A_request_with_no_file_part_is_rejected_with_a_400()
+        {
+            // A MultipartFormDataContent with literally zero parts serializes to a body the
+            // server's own form reader rejects before routing even runs ("invalid
+            // Content-Disposition value"), which isn't the case under test here. Include an
+            // unrelated field so the request is a well-formed multipart upload that simply
+            // omits "file".
+            var content = new MultipartFormDataContent();
+            content.Add(new StringContent("x"), "note");
+
+            var response = await _factory.CreateAuthenticatedClient(0)
+                .PostAsync("/api/Member/import?dryRun=true", content);
+
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            var body = await response.Content.ReadFromJsonAsync<JsonElement>();
+            Assert.Contains("Chưa chọn file", body.GetProperty("message").GetString());
+        }
+
+        // Handed over from this round's review: a file that is a well-formed ZIP but not a real
+        // OOXML workbook -- the shape a truncated or corrupted download takes -- made ClosedXML's
+        // XLWorkbook constructor throw NullReferenceException, which the controller's original
+        // catch (InvalidOperationException or FormatException) did not cover, so it escaped as a
+        // 500. Genuine non-zip garbage already worked, because ClosedXML throws a typed
+        // FileFormatException (a FormatException) for that case.
+        [Fact]
+        public async Task A_corrupt_but_zip_shaped_upload_is_rejected_with_a_400_not_a_500()
+        {
+            var stream = new MemoryStream();
+            using (var zip = new System.IO.Compression.ZipArchive(
+                       stream, System.IO.Compression.ZipArchiveMode.Create, leaveOpen: true))
+            {
+                // Deliberately no entries: a valid, empty ZIP archive, which is not a valid
+                // OOXML workbook.
+            }
+
+            var content = new MultipartFormDataContent();
+            content.Add(new ByteArrayContent(stream.ToArray()), "file", "import.xlsx");
+
+            var response = await _factory.CreateAuthenticatedClient(0)
+                .PostAsync("/api/Member/import?dryRun=true", content);
+
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            var body = await response.Content.ReadFromJsonAsync<JsonElement>();
+            var message = body.GetProperty("message").GetString();
+            Assert.False(string.IsNullOrWhiteSpace(message));
+            Assert.Contains("Excel", message);
+        }
     }
 }

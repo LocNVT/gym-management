@@ -1,3 +1,4 @@
+using ClosedXML.Excel;
 using gym_management_server.DTOs.ServicePackages;
 using gym_management_server.Infrastructure.Excel;
 using gym_management_server.Services.Import;
@@ -80,7 +81,7 @@ namespace gym_management_server.Controllers
         /// </summary>
         [HttpPost("import")]
         [Authorize]
-        public async Task<IActionResult> Import(IFormFile file, [FromQuery] bool dryRun = true)
+        public async Task<IActionResult> Import(IFormFile? file, [FromQuery] bool dryRun = true)
         {
             if (file is null || file.Length == 0)
                 return BadRequest(new { message = "Chưa chọn file." });
@@ -88,6 +89,26 @@ namespace gym_management_server.Controllers
                 return BadRequest(new { message = "File vượt quá 5 MB." });
             if (!file.FileName.EndsWith(".xlsx", StringComparison.OrdinalIgnoreCase))
                 return BadRequest(new { message = "Chỉ chấp nhận file .xlsx." });
+
+            // ClosedXML's XLWorkbook constructor throws NullReferenceException, not a typed
+            // exception, for a file that is a well-formed ZIP but not a real OOXML workbook --
+            // the shape a truncated or corrupted download takes. Genuine non-zip garbage throws
+            // a typed FileFormatException (a FormatException) instead, already handled by the
+            // catch below. This probe is scoped to just the parse, not the whole import, so a
+            // real server fault later in the pipeline (a database failure, say) still propagates
+            // as a 500 rather than being reported to the user as "bad file".
+            try
+            {
+                await using var probeStream = file.OpenReadStream();
+                using var probe = new XLWorkbook(probeStream);
+            }
+            catch (Exception)
+            {
+                return BadRequest(new
+                {
+                    message = "Không thể đọc file này dưới dạng workbook Excel. Vui lòng xuất lại hoặc tải lại file."
+                });
+            }
 
             await using var stream = file.OpenReadStream();
             try
