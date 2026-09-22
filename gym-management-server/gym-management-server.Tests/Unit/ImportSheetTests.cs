@@ -85,6 +85,7 @@ namespace gym_management_server.Tests.Unit
         [InlineData("1,500,000", 1500000)]
         [InlineData("1500000", 1500000)]
         [InlineData("1.500", 1500)]
+        [InlineData("1 500 000", 1500000)] // space grouping is a normal way to write large numbers
         public void Prices_typed_as_text_tolerate_the_thousands_separators_real_spreadsheets_contain(
             string input, decimal expected)
         {
@@ -121,8 +122,10 @@ namespace gym_management_server.Tests.Unit
         }
 
         [Theory]
-        [InlineData("12,34")]  // trailing group is 2 digits: neither a clean thousands group nor one decimal digit
-        [InlineData("1,2345")] // trailing group is 4 digits: same ambiguity
+        [InlineData("12,34")]     // trailing group is 2 digits: neither a clean thousands group nor one decimal digit
+        [InlineData("1,2345")]    // trailing group is 4 digits: same ambiguity
+        [InlineData("1 5")]       // a space is never a decimal mark, so this has no valid reading
+        [InlineData("1 500.000")] // mixed separators (space AND dot) in one cell
         public void An_ambiguous_separator_is_rejected_rather_than_guessed(string input)
         {
             var row = new ServicePackageRow();

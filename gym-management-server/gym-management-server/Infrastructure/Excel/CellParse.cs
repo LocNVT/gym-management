@@ -68,19 +68,28 @@ namespace gym_management_server.Infrastructure.Excel
         /// text's punctuation cannot be read one way without guessing. Rules, applied to
         /// the string with any leading sign set aside:
         /// <list type="bullet">
-        /// <item>no "." or "," at all → already unambiguous (includes scientific
+        /// <item>no ".", "," or " " at all → already unambiguous (includes scientific
         /// notation like "1E+16", which ExcelReader emits for a large numeric cell and
         /// never combines with a thousands grouping) — passed through as-is;</item>
-        /// <item>one separator character used, and EVERY group after the first is
-        /// exactly 3 digits ("1.500.000", "1,500,000", "1.500") → a thousands
-        /// separator; strip it;</item>
-        /// <item>exactly one separator, with exactly one digit after it ("1234.5",
-        /// "1,5") → a decimal mark; only "." vs "," differs, so normalize to ".";</item>
-        /// <item>anything else — both "." and "," present, or a trailing group that is
-        /// neither a clean 3-digit thousands group nor a single decimal digit (e.g.
-        /// "12,34", "1,2345") → genuinely ambiguous; the caller must reject rather than
-        /// guess, exactly the failure mode this method exists to close off.</item>
+        /// <item>exactly one of ".", "," or " " used, and EVERY group after the first is
+        /// exactly 3 digits ("1.500.000", "1,500,000", "1 500 000", "1.500") → a
+        /// thousands separator; strip it;</item>
+        /// <item>exactly one "." or "," used (never " " — a space is never a decimal
+        /// mark), with exactly one digit after it ("1234.5", "1,5") → a decimal mark;
+        /// only "." vs "," differs, so normalize to ".";</item>
+        /// <item>anything else — more than one of ".", "," and " " present in the same
+        /// cell, or a trailing group that is neither a clean 3-digit thousands group nor
+        /// (for "." or ",") a single decimal digit (e.g. "12,34", "1,2345", "1 5",
+        /// "1 500.000") → genuinely ambiguous; the caller must reject rather than guess,
+        /// exactly the failure mode this method exists to close off.</item>
         /// </list>
+        /// Known, accepted ambiguity: a numeric Excel cell whose fractional part happens
+        /// to be exactly 3 digits (e.g. a price of 1234.567, which
+        /// double.ToString(InvariantCulture) renders as "1234.567") is indistinguishable
+        /// from a thousands-grouped "1.234.567" under this rule and is read as 1234567.
+        /// Accepted deliberately: the only numeric import columns are a VND price (VND
+        /// has no sub-unit, so a three-decimal price is never a real value) and two
+        /// integer counts, so the case this would actually get wrong does not occur.
         /// </summary>
         private static string? NormalizeNumber(string raw)
         {
@@ -101,23 +110,28 @@ namespace gym_management_server.Infrastructure.Excel
 
             var hasDot = s.Contains('.');
             var hasComma = s.Contains(',');
+            var hasSpace = s.Contains(' ');
+            var separatorCount = (hasDot ? 1 : 0) + (hasComma ? 1 : 0) + (hasSpace ? 1 : 0);
 
-            if (!hasDot && !hasComma)
+            if (separatorCount == 0)
                 return s.Length > 0 && s.All(char.IsDigit) ? sign + s : null;
-            if (hasDot && hasComma)
-                return null; // both marks present in one cell — no way to read this without guessing
+            if (separatorCount > 1)
+                return null; // more than one kind of separator in one cell — no way to read this without guessing
 
-            var parts = s.Split(hasDot ? '.' : ',');
+            var sep = hasDot ? '.' : hasComma ? ',' : ' ';
+            var parts = s.Split(sep);
             if (parts.Length < 2 || parts.Any(p => p.Length == 0 || !p.All(char.IsDigit)))
                 return null;
 
             if (parts.Skip(1).All(p => p.Length == 3))
-                return sign + string.Concat(parts); // thousands grouping, e.g. 1.500.000 / 1.500
+                return sign + string.Concat(parts); // thousands grouping, e.g. 1.500.000 / 1 500 000 / 1.500
 
-            if (parts.Length == 2 && parts[1].Length == 1)
+            // A space is only ever a thousands mark, never a decimal mark, so it gets no
+            // decimal branch: "1 5" falls through to ambiguous, same as "12,34" does.
+            if (sep != ' ' && parts.Length == 2 && parts[1].Length == 1)
                 return sign + parts[0] + "." + parts[1]; // a single decimal digit, e.g. 1234.5 / 1,5
 
-            return null; // e.g. 12,34 or 1,2345 — not a clean thousands group, not a single decimal digit
+            return null; // e.g. 12,34 / 1,2345 / 1 5 — not a clean thousands group, not a single decimal digit
         }
 
         public static bool Boolean(string raw) => raw.Trim().ToLowerInvariant() switch
