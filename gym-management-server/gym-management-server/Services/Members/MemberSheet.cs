@@ -15,11 +15,11 @@ namespace gym_management_server.Services.Members
         public static SheetDefinition<MemberRow> Import => new("Thành viên", new[]
         {
             new ExcelColumn<MemberRow>("Họ và tên", r => r.FullName, isRequired: true, width: 28,
-                parse: (r, v) => r.FullName = v),
+                parse: (r, v) => r.FullName = CellParse.Text(v, 150, "Họ và tên")),
             new ExcelColumn<MemberRow>("Số điện thoại", r => r.PhoneNumber, isRequired: true,
                 parse: (r, v) => r.PhoneNumber = CellParse.Phone(v)),
             new ExcelColumn<MemberRow>("Email", r => r.Email, width: 26,
-                parse: (r, v) => r.Email = CellParse.Email(v)),
+                parse: (r, v) => r.Email = CellParse.Email(CellParse.Text(v, 150, "Email"))),
             new ExcelColumn<MemberRow>("Ngày sinh", r => r.DateOfBirth, format: "dd/MM/yyyy",
                 parse: (r, v) => r.DateOfBirth = CellParse.Date(v)),
             new ExcelColumn<MemberRow>("Giới tính", r => r.Gender.ToLabel(), allowedValues: Labels<Gender>(),

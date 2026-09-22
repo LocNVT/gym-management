@@ -10,12 +10,16 @@ namespace gym_management_server.Services.ServicePackages
         public static SheetDefinition<ServicePackageRow> Import => new("Gói dịch vụ", new[]
         {
             new ExcelColumn<ServicePackageRow>("Tên gói", r => r.Name, isRequired: true, width: 28,
-                parse: (r, v) => r.Name = v),
+                parse: (r, v) => r.Name = CellParse.Text(v, 150, "Tên gói")),
             new ExcelColumn<ServicePackageRow>("Mô tả", r => r.Description, width: 40,
                 parse: (r, v) => r.Description = v),
             new ExcelColumn<ServicePackageRow>("Đơn giá", r => r.Price, format: "#,##0",
                 parse: (r, v) => r.Price = CellParse.Money(v)),
-            new ExcelColumn<ServicePackageRow>("Số ngày", r => r.DurationDays,
+            // Required: unlike IsActive (where a sensible default exists for a blank cell —
+            // see ServicePackageRow.IsActive), there is no sensible default duration. Leaving
+            // this optional let a blank cell silently import a 0-day package instead of
+            // surfacing an error.
+            new ExcelColumn<ServicePackageRow>("Số ngày", r => r.DurationDays, isRequired: true,
                 parse: (r, v) => r.DurationDays = CellParse.Integer(v)),
             new ExcelColumn<ServicePackageRow>("Số lượt tối đa", r => r.MaxCheckins,
                 parse: (r, v) => r.MaxCheckins = CellParse.Integer(v)),

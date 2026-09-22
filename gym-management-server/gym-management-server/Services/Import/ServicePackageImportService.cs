@@ -25,7 +25,7 @@ namespace gym_management_server.Services.Import
             var errors = read.Errors.ToList();
 
             // The reader cannot know about the database or about the rest of the file.
-            errors.AddRange(await FindDuplicatesAsync(read.Rows));
+            errors.AddRange(await FindDuplicatesAsync(read.Rows, read.RowNumbers));
 
             if (errors.Count > 0 || dryRun)
                 return new ImportResult(read.Rows.Count, 0, Committed: false, errors);
@@ -36,13 +36,14 @@ namespace gym_management_server.Services.Import
                 await _packages.AddRangeAsync(read.Rows.Select(ToEntity));
                 await transaction.CommitAsync();
             }
-            catch (DbUpdateException)
+            catch (DbUpdateException ex)
             {
                 // Symmetric with MemberImportService: a race with a concurrent import between
-                // our duplicate check and the commit must not escape as a raw 500.
+                // our duplicate check and the commit -- or any other write failure -- must not
+                // escape as a raw 500, and must not be reported as a concurrency race unless it
+                // actually was one.
                 await transaction.RollbackAsync();
-                var conflictError = new RowError(1, null,
-                    "Dữ liệu đã thay đổi trong khi xử lý file. Vui lòng kiểm tra lại và thử lại.");
+                var conflictError = ImportConflictMessage.For(ex);
                 return new ImportResult(read.Rows.Count, 0, Committed: false, new List<RowError> { conflictError });
             }
             catch
@@ -54,7 +55,7 @@ namespace gym_management_server.Services.Import
             return new ImportResult(read.Rows.Count, read.Rows.Count, Committed: true, errors);
         }
 
-        private async Task<List<RowError>> FindDuplicatesAsync(IReadOnlyList<ServicePackageRow> rows)
+        private async Task<List<RowError>> FindDuplicatesAsync(IReadOnlyList<ServicePackageRow> rows, IReadOnlyList<int> rowNumbers)
         {
             var errors = new List<RowError>();
             var existing = (await _packages.GetAllNamesAsync())
@@ -64,7 +65,10 @@ namespace gym_management_server.Services.Import
             for (var i = 0; i < rows.Count; i++)
             {
                 var name = rows[i].Name;
-                var excelRow = i + 2;   // header is row 1
+                // The reader skips blank rows silently (no entry in Rows, no error), so an
+                // offset like "i + 2" drifts by one for every blank row earlier in the file.
+                // RowNumbers carries each kept row's true physical Excel row instead.
+                var excelRow = rowNumbers[i];
 
                 if (existing.Contains(name))
                     errors.Add(new RowError(excelRow, "Tên gói",

@@ -11,6 +11,7 @@ namespace gym_management_server.Infrastructure.Excel
         {
             var errors = new List<RowError>();
             var rows = new List<T>();
+            var rowNumbers = new List<int>();
 
             using var workbook = new XLWorkbook(stream);
             var ws = workbook.Worksheets.FirstOrDefault(w => w.Name == sheet.SheetName)
@@ -41,14 +42,14 @@ namespace gym_management_server.Infrastructure.Excel
             foreach (var column in writable.Where(c => c.IsRequired && !positions.ContainsKey(c.Header)))
                 errors.Add(new RowError(1, column.Header, $"Thiếu cột bắt buộc \"{column.Header}\"."));
 
-            if (errors.Count > 0) return new ReadResult<T>(rows, errors);
+            if (errors.Count > 0) return new ReadResult<T>(rows, errors, rowNumbers);
 
             var lastRow = ws.LastRowUsed()?.RowNumber() ?? 1;
             if (lastRow - 1 > MaxRows)
             {
                 errors.Add(new RowError(1, null,
                     $"File có {lastRow - 1:N0} dòng, vượt giới hạn {MaxRows:N0} dòng mỗi lần nhập."));
-                return new ReadResult<T>(rows, errors);
+                return new ReadResult<T>(rows, errors, rowNumbers);
             }
 
             for (var r = 2; r <= lastRow; r++)
@@ -96,10 +97,14 @@ namespace gym_management_server.Infrastructure.Excel
                     }
                 }
 
-                if (!rowHadError) rows.Add(item);
+                if (!rowHadError)
+                {
+                    rows.Add(item);
+                    rowNumbers.Add(r);
+                }
             }
 
-            return new ReadResult<T>(rows, errors);
+            return new ReadResult<T>(rows, errors, rowNumbers);
         }
 
         /// <summary>

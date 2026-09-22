@@ -1,3 +1,4 @@
+using System.IO;
 using System.Linq;
 using gym_management_server.DTOs.Export;
 using gym_management_server.Entities.Enums;
@@ -122,15 +123,44 @@ namespace gym_management_server.Tests.Unit
         }
 
         [Theory]
-        [InlineData("12,34")]     // trailing group is 2 digits: neither a clean thousands group nor one decimal digit
-        [InlineData("1,2345")]    // trailing group is 4 digits: same ambiguity
-        [InlineData("1 5")]       // a space is never a decimal mark, so this has no valid reading
-        [InlineData("1 500.000")] // mixed separators (space AND dot) in one cell
+        [InlineData("1 5")]        // a space is never a decimal mark, so this has no valid reading
+        [InlineData("1 500.000")]  // mixed separators (space AND dot) in one cell
+        [InlineData("1.234.5")]    // three groups, the last of which isn't a clean 3-digit group
         public void An_ambiguous_separator_is_rejected_rather_than_guessed(string input)
         {
             var row = new ServicePackageRow();
             var ex = Assert.Throws<FormatException>(() => ParsePackage("Đơn giá", row, input));
             Assert.Contains("không phải số tiền hợp lệ", ex.Message);
+        }
+
+        // Round-trip regression (final whole-branch review, item 3): ServicePackage.Price is
+        // decimal(18,2), so a price like 250000.25 is a completely normal, exportable value. The
+        // old rule only accepted a trailing group of exactly ONE digit as a decimal mark, so a
+        // clean export→import round trip of a two-decimal-digit price was rejected outright. The
+        // fix accepts any trailing group whose length is NOT exactly 3 (3 stays reserved for the
+        // thousands-grouping reading, per the accepted ambiguity documented on NormalizeNumber).
+        [Theory]
+        [InlineData("250000.25", 250000.25)]
+        [InlineData("1234.5", 1234.5)]
+        [InlineData("1234.25", 1234.25)]
+        [InlineData("12,34", 12.34)]     // 2-digit fraction via the Vietnamese decimal comma
+        [InlineData("1,2345", 1.2345)]   // 4-digit fraction via the Vietnamese decimal comma
+        public void Two_and_four_digit_fractions_are_read_as_decimals_not_rejected(string input, decimal expected)
+        {
+            var row = new ServicePackageRow();
+            ParsePackage("Đơn giá", row, input);
+            Assert.Equal(expected, row.Price);
+        }
+
+        [Fact]
+        public void A_three_digit_fraction_still_reads_as_a_thousands_group_the_documented_accepted_ambiguity()
+        {
+            // 1234.567 is indistinguishable from the thousands-grouped "1.234.567" under this
+            // rule; NormalizeNumber's doc comment accepts this deliberately because VND has no
+            // sub-unit, so a genuine 3-decimal-digit price never occurs in practice.
+            var row = new ServicePackageRow();
+            ParsePackage("Đơn giá", row, "1234.567");
+            Assert.Equal(1234567m, row.Price);
         }
 
         [Fact]
@@ -193,6 +223,97 @@ namespace gym_management_server.Tests.Unit
             var row = new ServicePackageRow();
             ParsePackage("Đang áp dụng", row, input);
             Assert.Equal(expected, row.IsActive);
+        }
+
+        // Final whole-branch review, item 5: a blank "Đang áp dụng" cell is optional, so
+        // ServicePackageRow's own C# default is what a blank cell actually imports as. It must
+        // match ServicePackage's and ServicePackageInput's default (true), or a blank cell
+        // silently creates a disabled package.
+        [Fact]
+        public void A_service_package_row_defaults_to_active_matching_the_entity_and_input_defaults()
+        {
+            Assert.True(new ServicePackageRow().IsActive);
+        }
+
+        // Item 5's audit: unlike IsActive, there is no sensible non-zero default for a package's
+        // duration, so the fix there is to require the column rather than pick a default -- a
+        // blank cell must be a row error, not a silent 0-day package.
+        [Fact]
+        public void Duration_days_is_a_required_import_column()
+        {
+            var column = ServicePackageSheet.Import.Columns.Single(c => c.Header == "Số ngày");
+            Assert.True(column.IsRequired);
+        }
+
+        // Final whole-branch review, item 2: FullName/Email/Name are nvarchar(150) in the
+        // database. A dry run that used no length check at all called a too-long value "clean",
+        // only for SQL Server to reject it at commit time with a truncation error that names
+        // neither the row nor the column. These three columns must fail the same way every other
+        // CellParse rejection does: at parse time, in Vietnamese, naming the column and limit.
+        [Fact]
+        public void A_full_name_over_150_characters_is_rejected_by_column_and_limit()
+        {
+            var ex = Assert.Throws<FormatException>(
+                () => Parse("Họ và tên", new MemberRow(), new string('A', 151)));
+            Assert.Contains("Họ và tên", ex.Message);
+            Assert.Contains("150", ex.Message);
+        }
+
+        [Fact]
+        public void A_full_name_at_exactly_150_characters_is_accepted()
+        {
+            var row = new MemberRow();
+            var name = new string('A', 150);
+            Parse("Họ và tên", row, name);
+            Assert.Equal(name, row.FullName);
+        }
+
+        [Fact]
+        public void An_email_over_150_characters_is_rejected_by_column_and_limit()
+        {
+            var longLocalPart = new string('a', 145);
+            var ex = Assert.Throws<FormatException>(
+                () => Parse("Email", new MemberRow(), $"{longLocalPart}@a.com"));
+            Assert.Contains("Email", ex.Message);
+            Assert.Contains("150", ex.Message);
+        }
+
+        [Fact]
+        public void A_service_package_name_over_150_characters_is_rejected_by_column_and_limit()
+        {
+            var ex = Assert.Throws<FormatException>(
+                () => ParsePackage("Tên gói", new ServicePackageRow(), new string('B', 151)));
+            Assert.Contains("Tên gói", ex.Message);
+            Assert.Contains("150", ex.Message);
+        }
+
+        // Final whole-branch review, item 4: the reader skips a blank/whitespace-only row
+        // silently -- no error, no entry in Rows -- so a caller computing the Excel row as
+        // "i + 2" drifts by one for every blank row earlier in the file. RowNumbers must carry
+        // each kept row's true physical row instead.
+        [Fact]
+        public void RowNumbers_skips_the_index_forward_past_a_silently_skipped_blank_row()
+        {
+            using var wb = new ClosedXML.Excel.XLWorkbook();
+            var ws = wb.Worksheets.Add("Gói dịch vụ");
+            ws.Cell(1, 1).Value = "Tên gói";
+            ws.Cell(1, 2).Value = "Số ngày";
+            ws.Cell(2, 1).Value = "Gói A";
+            ws.Cell(2, 2).Value = 30;
+            // Row 3 left entirely blank -- the reader must skip it without an error and without
+            // consuming a slot in Rows/RowNumbers.
+            ws.Cell(4, 1).Value = "Gói B";
+            ws.Cell(4, 2).Value = 60;
+
+            using var stream = new MemoryStream();
+            wb.SaveAs(stream);
+            stream.Position = 0;
+
+            var read = ExcelReader.Read(stream, ServicePackageSheet.Import);
+
+            Assert.Empty(read.Errors);
+            Assert.Equal(2, read.Rows.Count);
+            Assert.Equal(new[] { 2, 4 }, read.RowNumbers);
         }
     }
 }

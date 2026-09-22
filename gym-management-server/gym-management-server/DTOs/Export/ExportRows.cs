@@ -28,7 +28,12 @@ namespace gym_management_server.DTOs.Export
         public decimal Price { get; set; }
         public int DurationDays { get; set; }
         public int? MaxCheckins { get; set; }
-        public bool IsActive { get; set; }
+
+        // Matches ServicePackage.IsActive's and ServicePackageInput.IsActive's own default.
+        // The "Đang áp dụng" column is optional on import, so a blank cell must produce the
+        // same package a blank field produces everywhere else in the app -- active -- not a
+        // silently disabled one.
+        public bool IsActive { get; set; } = true;
 
         // Read-only on import.
         public Guid Id { get; set; }

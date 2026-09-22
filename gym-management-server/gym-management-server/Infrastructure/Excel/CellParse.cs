@@ -34,6 +34,21 @@ namespace gym_management_server.Infrastructure.Excel
         // here is a bug, not something to guess about.
         private const NumberStyles NumericStyle = NumberStyles.Float;
 
+        /// <summary>
+        /// Enforces an nvarchar(N) column's length before the value ever reaches SaveChanges.
+        /// A dry run that used no length check at all was "clean" for a string SQL Server would
+        /// go on to reject at commit time with a truncation error that names no row and no
+        /// column — this is what stands between the user and that experience: the same
+        /// Vietnamese, row/column-addressed error every other CellParse failure produces.
+        /// </summary>
+        public static string Text(string raw, int maxLength, string columnName)
+        {
+            if (raw.Length > maxLength)
+                throw new FormatException(
+                    $"\"{columnName}\" dài {raw.Length} ký tự, vượt quá giới hạn {maxLength} ký tự.");
+            return raw;
+        }
+
         public static DateTime Date(string raw)
         {
             if (DateTime.TryParseExact(raw, DateFormats, CultureInfo.InvariantCulture,
@@ -75,21 +90,30 @@ namespace gym_management_server.Infrastructure.Excel
         /// exactly 3 digits ("1.500.000", "1,500,000", "1 500 000", "1.500") → a
         /// thousands separator; strip it;</item>
         /// <item>exactly one "." or "," used (never " " — a space is never a decimal
-        /// mark), with exactly one digit after it ("1234.5", "1,5") → a decimal mark;
-        /// only "." vs "," differs, so normalize to ".";</item>
+        /// mark), with a trailing group that is NOT exactly 3 digits ("1234.5", "1,5",
+        /// "250000.25", "1,2345") → a decimal mark; only "." vs "," differs, so
+        /// normalize to ".". A 3-digit trailing group is deliberately NOT read this way
+        /// — see the accepted-ambiguity note below — so it falls into the thousands
+        /// branch above instead, never here.</item>
         /// <item>anything else — more than one of ".", "," and " " present in the same
-        /// cell, or a trailing group that is neither a clean 3-digit thousands group nor
-        /// (for "." or ",") a single decimal digit (e.g. "12,34", "1,2345", "1 5",
-        /// "1 500.000") → genuinely ambiguous; the caller must reject rather than guess,
-        /// exactly the failure mode this method exists to close off.</item>
+        /// cell, more than two groups with inconsistent grouping (e.g. "1.234.5"), or a
+        /// space-separated trailing group that isn't a clean 3-digit thousands group
+        /// (e.g. "1 5", "1 500.000") → genuinely ambiguous; the caller must reject
+        /// rather than guess, exactly the failure mode this method exists to close off.
+        /// </item>
         /// </list>
         /// Known, accepted ambiguity: a numeric Excel cell whose fractional part happens
         /// to be exactly 3 digits (e.g. a price of 1234.567, which
         /// double.ToString(InvariantCulture) renders as "1234.567") is indistinguishable
         /// from a thousands-grouped "1.234.567" under this rule and is read as 1234567.
         /// Accepted deliberately: the only numeric import columns are a VND price (VND
-        /// has no sub-unit, so a three-decimal price is never a real value) and two
-        /// integer counts, so the case this would actually get wrong does not occur.
+        /// has no sub-unit smaller than 1 đồng, so a three-decimal-digit price is
+        /// never a real value) or one of two integer counts, so the case this would
+        /// actually get wrong does not occur. Two- and four-digit fractions (and every
+        /// other length except exactly 3) are NOT covered by this ambiguity — a price
+        /// like 250000.25 or 1234.25 is common (decimal(18,2) allows exactly two
+        /// fraction digits) and must round-trip through export→import, so those are read
+        /// as decimals, not rejected.
         /// </summary>
         private static string? NormalizeNumber(string raw)
         {
@@ -127,11 +151,14 @@ namespace gym_management_server.Infrastructure.Excel
                 return sign + string.Concat(parts); // thousands grouping, e.g. 1.500.000 / 1 500 000 / 1.500
 
             // A space is only ever a thousands mark, never a decimal mark, so it gets no
-            // decimal branch: "1 5" falls through to ambiguous, same as "12,34" does.
-            if (sep != ' ' && parts.Length == 2 && parts[1].Length == 1)
-                return sign + parts[0] + "." + parts[1]; // a single decimal digit, e.g. 1234.5 / 1,5
+            // decimal branch: "1 5" falls through to ambiguous. A trailing group of
+            // exactly 3 digits already returned above (thousands grouping), so reaching
+            // here with parts.Length == 2 means the trailing group is NOT 3 digits —
+            // i.e. unambiguously a decimal fraction of some other length (1, 2, 4, ...).
+            if (sep != ' ' && parts.Length == 2 && parts[1].Length != 3)
+                return sign + parts[0] + "." + parts[1]; // a decimal mark, e.g. 1234.5 / 1,5 / 250000.25 / 1,2345
 
-            return null; // e.g. 12,34 / 1,2345 / 1 5 — not a clean thousands group, not a single decimal digit
+            return null; // e.g. "1 5", "1 500.000", "1.234.5" — genuinely ambiguous grouping
         }
 
         public static bool Boolean(string raw) => raw.Trim().ToLowerInvariant() switch
