@@ -1,3 +1,4 @@
+using System.Globalization;
 using ClosedXML.Excel;
 
 namespace gym_management_server.Infrastructure.Excel
@@ -21,11 +22,19 @@ namespace gym_management_server.Infrastructure.Excel
             // Match the header by name, so the user may reorder or drop columns.
             var headerRow = ws.Row(1);
             var positions = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            var duplicateHeaders = new List<string>();
             foreach (var cell in headerRow.CellsUsed())
             {
                 var name = cell.GetString().Trim();
-                if (name.Length > 0) positions.TryAdd(name, cell.Address.ColumnNumber);
+                if (name.Length == 0) continue;
+                if (!positions.TryAdd(name, cell.Address.ColumnNumber))
+                    duplicateHeaders.Add(name);
             }
+
+            // A repeated header silently shadows one of the columns rather than being
+            // reported, so make it a loud file-level error instead of dropping data.
+            foreach (var name in duplicateHeaders)
+                errors.Add(new RowError(1, name, $"Cột \"{name}\" bị lặp lại trong tiêu đề."));
 
             foreach (var column in writable.Where(c => c.IsRequired && !positions.ContainsKey(c.Header)))
                 errors.Add(new RowError(1, column.Header, $"Thiếu cột bắt buộc \"{column.Header}\"."));
@@ -45,15 +54,25 @@ namespace gym_management_server.Infrastructure.Excel
                 var excelRow = ws.Row(r);
                 if (excelRow.IsEmpty()) continue;
 
+                // IXLRow.IsEmpty() only tells us the row has no used cells at all; a row whose
+                // only content is whitespace (" ") still counts as "used" and would otherwise
+                // fall through as a phantom row of default values. Read each importable cell
+                // once, and if every one of them is blank after trimming, treat the row as
+                // blank too and skip it silently, same as a genuinely empty row.
+                var cells = new List<(ExcelColumn<T> Column, string Raw)>();
+                foreach (var column in writable)
+                {
+                    if (positions.TryGetValue(column.Header, out var columnNumber))
+                        cells.Add((column, CellText(ws.Cell(r, columnNumber))));
+                }
+
+                if (cells.All(c => c.Raw.Length == 0)) continue;
+
                 var item = new T();
                 var rowHadError = false;
 
-                foreach (var column in writable)
+                foreach (var (column, raw) in cells)
                 {
-                    if (!positions.TryGetValue(column.Header, out var columnNumber)) continue;
-
-                    var raw = ws.Cell(r, columnNumber).GetFormattedString().Trim();
-
                     if (raw.Length == 0)
                     {
                         if (column.IsRequired)
@@ -80,5 +99,30 @@ namespace gym_management_server.Infrastructure.Excel
 
             return new ReadResult<T>(rows, errors);
         }
+
+        /// <summary>
+        /// Renders a cell as a culture-invariant, unambiguous string for the column's
+        /// <c>Parse</c> delegate to consume. <see cref="IXLCell.GetFormattedString"/> renders
+        /// through the cell's display format and the workbook's culture, so the same date or
+        /// number can come out differently depending on who authored the file (a US-formatted
+        /// date, a thousands-grouped number). Reading by <see cref="IXLCell.DataType"/> instead
+        /// gives every consumer the same text regardless of how the cell happens to be
+        /// displayed.
+        /// </summary>
+        private static string CellText(IXLCell cell) => cell.DataType switch
+        {
+            XLDataType.DateTime => FormatDateTime(cell.GetDateTime()),
+            XLDataType.Number => cell.GetDouble().ToString(CultureInfo.InvariantCulture),
+            XLDataType.Boolean => cell.GetBoolean() ? "True" : "False",
+            _ => cell.GetFormattedString().Trim(),
+        };
+
+        // ISO 8601, date-only unless the value actually carries a time component, so a
+        // date-only cell doesn't grow a spurious "00:00:00" that a date-only parser would
+        // then have to strip back off.
+        private static string FormatDateTime(DateTime value) =>
+            value.TimeOfDay == TimeSpan.Zero
+                ? value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
+                : value.ToString("yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture);
     }
 }

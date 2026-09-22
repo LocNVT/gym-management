@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.IO;
 using ClosedXML.Excel;
 using gym_management_server.Infrastructure.Excel;
@@ -124,6 +125,101 @@ namespace gym_management_server.Tests.Unit
 
             Assert.Contains(result.Errors, e => e.Message.Contains("vượt giới hạn"));
             Assert.Empty(result.Rows);
+        }
+
+        [Fact]
+        public void Whitespace_only_rows_are_skipped_silently()
+        {
+            // A row that "looks" blank in Excel but actually holds a stray space in a cell must
+            // not turn into a phantom row of default values.
+            var result = ExcelReader.Read(
+                Build(["Tên", "Tuổi"], ["Nguyễn Văn A", "30"], [" ", "  "], ["Trần Thị B", "25"]), Sheet);
+
+            Assert.True(result.IsClean);
+            Assert.Equal(2, result.Rows.Count);
+        }
+
+        [Fact]
+        public void A_duplicate_header_is_one_file_level_error()
+        {
+            var result = ExcelReader.Read(
+                Build(["Tên", "Tuổi", "Tên"], ["Nguyễn Văn A", "30", "A"]), Sheet);
+
+            var error = Assert.Single(result.Errors);
+            Assert.Equal(1, error.RowNumber);
+            Assert.Contains("Tên", error.Message);
+            Assert.Contains("lặp lại", error.Message);
+            Assert.Empty(result.Rows);
+        }
+
+        private sealed class DateRow
+        {
+            public DateTime When { get; set; }
+        }
+
+        private static SheetDefinition<DateRow> DateSheet => new("Ngày", new[]
+        {
+            new ExcelColumn<DateRow>("Ngày", r => r.When, isRequired: true,
+                parse: (r, v) => r.When = DateTime.ParseExact(v, "yyyy-MM-dd", CultureInfo.InvariantCulture)),
+        });
+
+        [Fact]
+        public void A_date_cell_is_read_the_same_regardless_of_its_display_format()
+        {
+            // A date typed via Excel's date picker is stored as a serial number; its on-screen
+            // rendering depends on the cell's number format and the workbook's culture (e.g.
+            // US "9/22/2026" vs VN "22/09/2026"). The reader must hand the parser the same,
+            // unambiguous text no matter which display format the cell happens to carry.
+            using var wb = new XLWorkbook();
+            var ws = wb.Worksheets.Add("Ngày");
+            ws.Cell(1, 1).Value = "Ngày";
+            var cell = ws.Cell(2, 1);
+            cell.Value = new DateTime(2026, 9, 22);
+            cell.Style.NumberFormat.Format = "M/d/yyyy"; // would render "9/22/2026"
+
+            var stream = new MemoryStream();
+            wb.SaveAs(stream);
+            stream.Position = 0;
+
+            var result = ExcelReader.Read(stream, DateSheet);
+
+            Assert.True(result.IsClean);
+            Assert.Equal(new DateTime(2026, 9, 22), result.Rows[0].When);
+        }
+
+        private sealed class NumberRow
+        {
+            public decimal Amount { get; set; }
+        }
+
+        private static SheetDefinition<NumberRow> NumberSheet => new("Số", new[]
+        {
+            new ExcelColumn<NumberRow>("Số tiền", r => r.Amount, isRequired: true,
+                parse: (r, v) =>
+                {
+                    if (v.Contains(',')) throw new FormatException("Chuỗi số không được chứa dấu phẩy.");
+                    r.Amount = decimal.Parse(v, CultureInfo.InvariantCulture);
+                }),
+        });
+
+        [Fact]
+        public void A_number_cell_with_a_thousands_format_does_not_carry_a_group_separator()
+        {
+            using var wb = new XLWorkbook();
+            var ws = wb.Worksheets.Add("Số");
+            ws.Cell(1, 1).Value = "Số tiền";
+            var cell = ws.Cell(2, 1);
+            cell.Value = 1234;
+            cell.Style.NumberFormat.Format = "#,##0"; // would render "1,234"
+
+            var stream = new MemoryStream();
+            wb.SaveAs(stream);
+            stream.Position = 0;
+
+            var result = ExcelReader.Read(stream, NumberSheet);
+
+            Assert.True(result.IsClean);
+            Assert.Equal(1234m, result.Rows[0].Amount);
         }
     }
 }
