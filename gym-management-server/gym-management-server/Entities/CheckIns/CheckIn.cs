@@ -1,4 +1,5 @@
 using gym_management_server.Entities.Devices;
+using gym_management_server.Entities.Enums;
 using gym_management_server.Entities.Members;
 
 namespace gym_management_server.Entities.CheckIns
@@ -11,7 +12,7 @@ namespace gym_management_server.Entities.CheckIns
     {
         public CheckIn() { }
 
-        public CheckIn(Guid id, Guid memberId, DateTime checkInTime, byte method, string? notes)
+        public CheckIn(Guid id, Guid memberId, DateTime checkInTime, CheckInMethod method, string? notes)
         {
             Id = id;
             MemberId = memberId;
@@ -30,7 +31,7 @@ namespace gym_management_server.Entities.CheckIns
         public DateTime? CheckOutTime { get; set; }
 
         /// <summary>0 = unknown/manual, 1 = card, 2 = fingerprint, ... (matches CheckInMethod).</summary>
-        public byte Method { get; set; } = 0;
+        public CheckInMethod Method { get; set; } = CheckInMethod.Unknown;
 
         /// <summary>The device that recorded this attendance, if any (e.g. the fingerprint scanner).</summary>
         public Guid? DeviceId { get; set; }
@@ -40,12 +41,5 @@ namespace gym_management_server.Entities.CheckIns
         public Guid? OperatorUserId { get; set; }
 
         public string? Notes { get; set; }
-    }
-
-    public static class CheckInMethod
-    {
-        public const byte Unknown = 0;
-        public const byte Card = 1;
-        public const byte Fingerprint = 2;
     }
 }

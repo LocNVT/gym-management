@@ -7,6 +7,7 @@ using gym_management_server.Data.EntityFramework;
 using gym_management_server.DTOs.Fingerprints;
 using gym_management_server.Entities.CheckIns;
 using gym_management_server.Entities.Devices;
+using gym_management_server.Entities.Enums;
 using gym_management_server.Entities.Members;
 using gym_management_server.Fingerprints;
 using gym_management_server.Fingerprints.Providers;

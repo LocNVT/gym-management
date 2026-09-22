@@ -1,4 +1,5 @@
-﻿using gym_management_server.Entities.Members;
+﻿using gym_management_server.Entities.Enums;
+using gym_management_server.Entities.Members;
 
 namespace gym_management_server.Entities.CheckIns
 {
@@ -8,7 +9,7 @@ namespace gym_management_server.Entities.CheckIns
         public Guid MemberId { get; set; }
         public Member Member { get; set; } = null!;
         public DateTime CheckInTime { get; set; } = DateTime.UtcNow;
-        public byte Method { get; set; } = 0;
+        public CheckInMethod Method { get; set; } = CheckInMethod.Unknown;
         public string? Notes { get; set; }
     }
 }

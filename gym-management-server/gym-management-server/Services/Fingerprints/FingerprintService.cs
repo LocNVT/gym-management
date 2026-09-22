@@ -2,6 +2,7 @@ using gym_management_server.DTOs.CheckIns;
 using gym_management_server.DTOs.Common;
 using gym_management_server.DTOs.Fingerprints;
 using gym_management_server.Entities.CheckIns;
+using gym_management_server.Entities.Enums;
 using gym_management_server.Entities.Fingerprints;
 using gym_management_server.Fingerprints;
 using gym_management_server.Repositories.CheckIns;

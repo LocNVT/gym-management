@@ -1,3 +1,5 @@
+using gym_management_server.Entities.Enums;
+
 namespace gym_management_server.DTOs.Invoices
 {
     public class InvoiceInput
@@ -6,8 +8,8 @@ namespace gym_management_server.DTOs.Invoices
         public Guid? MemberId { get; set; }
         public DateTime InvoiceDate { get; set; } = DateTime.UtcNow;
         public decimal TotalAmount { get; set; }
-        public byte Status { get; set; } = 1;
-        public byte PaymentMethod { get; set; } = 0;
+        public InvoiceStatus Status { get; set; } = InvoiceStatus.Pending;
+        public PaymentMethod PaymentMethod { get; set; } = PaymentMethod.Cash;
         public string? Notes { get; set; }
     }
 }

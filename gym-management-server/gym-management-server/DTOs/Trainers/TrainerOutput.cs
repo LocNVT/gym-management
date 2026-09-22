@@ -1,3 +1,5 @@
+using gym_management_server.Entities.Enums;
+
 namespace gym_management_server.DTOs.Trainers
 {
     public class TrainerOutput
@@ -8,7 +10,7 @@ namespace gym_management_server.DTOs.Trainers
         public string? Email { get; set; }
         public string? Specialty { get; set; }
         public decimal HourlyRate { get; set; }
-        public byte Status { get; set; }
+        public TrainerStatus Status { get; set; }
         public string? Notes { get; set; }
     }
 }

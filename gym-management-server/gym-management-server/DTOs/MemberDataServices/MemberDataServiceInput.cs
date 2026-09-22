@@ -1,4 +1,5 @@
-﻿using gym_management_server.Entities.Members;
+﻿using gym_management_server.Entities.Enums;
+using gym_management_server.Entities.Members;
 
 namespace gym_management_server.Entities.MemberDataServices
 {
@@ -11,7 +12,7 @@ namespace gym_management_server.Entities.MemberDataServices
         public DateTime EndDate { get; set; }
         public decimal PriceAtPurchase { get; set; }
         public int? RemainingCheckins { get; set; }
-        public byte Status { get; set; } = 1;
+        public SubscriptionStatus Status { get; set; } = SubscriptionStatus.Active;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
     }
