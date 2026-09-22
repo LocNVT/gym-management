@@ -4,6 +4,7 @@ using gym_management_server.Entities.ServicePackages;
 using gym_management_server.Infrastructure.Excel;
 using gym_management_server.Repositories.ServicePackages;
 using gym_management_server.Services.ServicePackages;
+using Microsoft.EntityFrameworkCore;
 
 namespace gym_management_server.Services.Import
 {
@@ -34,6 +35,15 @@ namespace gym_management_server.Services.Import
             {
                 await _packages.AddRangeAsync(read.Rows.Select(ToEntity));
                 await transaction.CommitAsync();
+            }
+            catch (DbUpdateException)
+            {
+                // Symmetric with MemberImportService: a race with a concurrent import between
+                // our duplicate check and the commit must not escape as a raw 500.
+                await transaction.RollbackAsync();
+                var conflictError = new RowError(1, null,
+                    "Dữ liệu đã thay đổi trong khi xử lý file. Vui lòng kiểm tra lại và thử lại.");
+                return new ImportResult(read.Rows.Count, 0, Committed: false, new List<RowError> { conflictError });
             }
             catch
             {

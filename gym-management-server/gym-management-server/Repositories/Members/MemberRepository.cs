@@ -75,8 +75,13 @@ namespace gym_management_server.Repositories.Members
                 .Take(ExcelWriter.MaxRows + 1)
                 .ToListAsync();
 
-        public async Task<List<string>> GetAllPhoneNumbersAsync() =>
-            await _db.Members.Where(x => !x.IsDeleted).Select(x => x.PhoneNumber).ToListAsync();
+        public async Task<List<(string PhoneNumber, bool IsDeleted)>> GetAllPhoneNumbersWithDeletedStateAsync()
+        {
+            var raw = await _db.Members
+                .Select(x => new { x.PhoneNumber, x.IsDeleted })
+                .ToListAsync();
+            return raw.Select(x => (x.PhoneNumber, x.IsDeleted)).ToList();
+        }
 
         /// <summary>One SaveChanges for the whole batch, so the caller's transaction covers it.</summary>
         public async Task AddRangeAsync(IEnumerable<Member> members)
