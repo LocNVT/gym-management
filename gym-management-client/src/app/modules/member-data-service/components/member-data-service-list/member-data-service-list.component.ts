@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MemberDataServiceService, MemberService, ServicePackageService } from '../../../../shared/services/api.service';
+import { EnumService, LookupOption } from '../../../../shared/services/enum.service';
 import CustomStore from 'devextreme/data/custom_store';
 
 @Component({
@@ -12,19 +13,17 @@ export class MemberDataServiceListComponent implements OnInit {
     dataSource: any;
     members: any[] = [];
     servicePackages: any[] = [];
-    statusOptions = [
-        { value: 0, text: 'Hoạt động' },
-        { value: 1, text: 'Hết hạn' },
-        { value: 2, text: 'Đã hủy' }
-    ];
+    statusOptions: LookupOption[] = [];
 
     constructor(
         private svc: MemberDataServiceService,
         private memberService: MemberService,
-        private spService: ServicePackageService
+        private spService: ServicePackageService,
+        private enumService: EnumService
     ) { }
 
     ngOnInit(): void {
+        this.enumService.options('subscriptionStatus').subscribe(o => this.statusOptions = o);
         this.memberService.getAll(1, 1000).subscribe(data => this.members = data.items || []);
         this.spService.getAll(1, 1000).subscribe(data => this.servicePackages = data.items || []);
         this.dataSource = new CustomStore({

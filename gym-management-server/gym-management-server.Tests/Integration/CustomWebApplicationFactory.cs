@@ -1,12 +1,18 @@
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Security.Claims;
+using System.Text;
 using gym_management_server.Data.EntityFramework;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 
 namespace gym_management_server.Tests.Integration
 {
@@ -43,6 +49,36 @@ namespace gym_management_server.Tests.Integration
                 services.AddDbContext<GymManagementContext>(options =>
                     options.UseInMemoryDatabase(_dbName));
             });
+        }
+
+        /// <summary>An HttpClient carrying a valid JWT. role: 0 = Staff, 1 = Admin.</summary>
+        public HttpClient CreateAuthenticatedClient(byte role)
+        {
+            var client = CreateClient();
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", IssueToken(role));
+            return client;
+        }
+
+        private string IssueToken(byte role)
+        {
+            // Must match appsettings.json's Jwt section, which the test host loads as-is.
+            var config = Services.GetRequiredService<IConfiguration>().GetSection("Jwt");
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Key"]!));
+
+            var token = new JwtSecurityToken(
+                issuer: config["Issuer"],
+                audience: config["Audience"],
+                claims: new[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()),
+                    new Claim(ClaimTypes.Name, role == 1 ? "admin" : "staff"),
+                    new Claim(ClaimTypes.Role, role.ToString()),
+                },
+                expires: DateTime.UtcNow.AddHours(1),
+                signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256));
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }

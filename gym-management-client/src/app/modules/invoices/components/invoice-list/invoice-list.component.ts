@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { InvoiceService, MemberService } from '../../../../shared/services/api.service';
+import { EnumService, LookupOption } from '../../../../shared/services/enum.service';
 import CustomStore from 'devextreme/data/custom_store';
 
 @Component({
@@ -11,20 +12,18 @@ import CustomStore from 'devextreme/data/custom_store';
 export class InvoiceListComponent implements OnInit {
     dataSource: any;
     members: any[] = [];
-    statusOptions = [
-        { value: 0, text: 'Chờ thanh toán' },
-        { value: 1, text: 'Đã thanh toán' },
-        { value: 2, text: 'Đã hủy' }
-    ];
-    paymentMethodOptions = [
-        { value: 0, text: 'Tiền mặt' },
-        { value: 1, text: 'Chuyển khoản' },
-        { value: 2, text: 'Thẻ' }
-    ];
+    statusOptions: LookupOption[] = [];
+    paymentMethodOptions: LookupOption[] = [];
 
-    constructor(private invoiceService: InvoiceService, private memberService: MemberService) { }
+    constructor(
+        private invoiceService: InvoiceService,
+        private memberService: MemberService,
+        private enumService: EnumService
+    ) { }
 
     ngOnInit(): void {
+        this.enumService.options('invoiceStatus').subscribe(o => this.statusOptions = o);
+        this.enumService.options('paymentMethod').subscribe(o => this.paymentMethodOptions = o);
         this.memberService.getAll(1, 1000).subscribe(data => this.members = data.items || []);
         this.dataSource = new CustomStore({
             key: 'id',

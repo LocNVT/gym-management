@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { TrainerService } from '../../../../shared/services/api.service';
+import { EnumService, LookupOption } from '../../../../shared/services/enum.service';
 import CustomStore from 'devextreme/data/custom_store';
 
 @Component({
@@ -10,14 +11,12 @@ import CustomStore from 'devextreme/data/custom_store';
 })
 export class TrainerListComponent implements OnInit {
     dataSource: any;
-    statusOptions = [
-        { value: 0, text: 'Đang làm việc' },
-        { value: 1, text: 'Ngừng làm việc' }
-    ];
+    statusOptions: LookupOption[] = [];
 
-    constructor(private trainerService: TrainerService) { }
+    constructor(private trainerService: TrainerService, private enumService: EnumService) { }
 
     ngOnInit(): void {
+        this.enumService.options('trainerStatus').subscribe(o => this.statusOptions = o);
         this.dataSource = new CustomStore({
             key: 'id',
             load: (loadOptions: any) => {

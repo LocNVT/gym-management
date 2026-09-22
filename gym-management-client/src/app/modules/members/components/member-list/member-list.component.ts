@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MemberService } from '../../../../shared/services/api.service';
+import { EnumService, LookupOption } from '../../../../shared/services/enum.service';
 import { Member } from '../../../../shared/models';
 import { CameraDialogComponent } from '../camera-dialog/camera-dialog.component';
 import CustomStore from 'devextreme/data/custom_store';
@@ -14,24 +15,19 @@ import CustomStore from 'devextreme/data/custom_store';
 })
 export class MemberListComponent implements OnInit {
     dataSource: any;
-    genderOptions = [
-        { value: 0, text: 'Nam' },
-        { value: 1, text: 'Nữ' },
-        { value: 2, text: 'Khác' }
-    ];
-    statusOptions = [
-        { value: 0, text: 'Hoạt động' },
-        { value: 1, text: 'Tạm ngưng' },
-        { value: 2, text: 'Hết hạn' }
-    ];
+    genderOptions: LookupOption[] = [];
+    statusOptions: LookupOption[] = [];
 
     constructor(
         private memberService: MemberService,
+        private enumService: EnumService,
         private dialog: MatDialog,
         private snackBar: MatSnackBar
     ) { }
 
     ngOnInit(): void {
+        this.enumService.options('gender').subscribe(o => this.genderOptions = o);
+        this.enumService.options('memberStatus').subscribe(o => this.statusOptions = o);
         this.dataSource = new CustomStore({
             key: 'id',
             load: (loadOptions: any) => {

@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ExpenseService } from '../../../../shared/services/api.service';
+import { EnumService, LookupOption } from '../../../../shared/services/enum.service';
 import CustomStore from 'devextreme/data/custom_store';
 
 @Component({
@@ -10,6 +11,7 @@ import CustomStore from 'devextreme/data/custom_store';
 })
 export class ExpenseListComponent implements OnInit {
     dataSource: any;
+    // Free text, not an enum — categories aren't a fixed backend-defined set.
     categoryOptions = [
         { value: 'Tiền thuê', text: 'Tiền thuê' },
         { value: 'Điện nước', text: 'Điện nước' },
@@ -18,15 +20,12 @@ export class ExpenseListComponent implements OnInit {
         { value: 'Bảo trì', text: 'Bảo trì' },
         { value: 'Khác', text: 'Khác' }
     ];
-    paymentMethodOptions = [
-        { value: 0, text: 'Tiền mặt' },
-        { value: 1, text: 'Chuyển khoản' },
-        { value: 2, text: 'Thẻ' }
-    ];
+    paymentMethodOptions: LookupOption[] = [];
 
-    constructor(private expenseService: ExpenseService) { }
+    constructor(private expenseService: ExpenseService, private enumService: EnumService) { }
 
     ngOnInit(): void {
+        this.enumService.options('paymentMethod').subscribe(o => this.paymentMethodOptions = o);
         this.dataSource = new CustomStore({
             key: 'id',
             load: (loadOptions: any) => {

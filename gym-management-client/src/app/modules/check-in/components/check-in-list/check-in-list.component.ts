@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CheckInService, MemberService } from '../../../../shared/services/api.service';
+import { EnumService, LookupOption } from '../../../../shared/services/enum.service';
 import CustomStore from 'devextreme/data/custom_store';
 
 @Component({
@@ -11,19 +12,16 @@ import CustomStore from 'devextreme/data/custom_store';
 export class CheckInListComponent implements OnInit {
     dataSource: any;
     members: any[] = [];
-    methodOptions = [
-        { value: 0, text: 'Thẻ từ' },
-        { value: 1, text: 'QR Code' },
-        { value: 2, text: 'Vân tay' },
-        { value: 3, text: 'Thủ công' }
-    ];
+    methodOptions: LookupOption[] = [];
 
     constructor(
         private checkInService: CheckInService,
-        private memberService: MemberService
+        private memberService: MemberService,
+        private enumService: EnumService
     ) { }
 
     ngOnInit(): void {
+        this.enumService.options('checkInMethod').subscribe(o => this.methodOptions = o);
         this.memberService.getAll(1, 1000).subscribe(data => this.members = data.items || []);
         this.dataSource = new CustomStore({
             key: 'id',
