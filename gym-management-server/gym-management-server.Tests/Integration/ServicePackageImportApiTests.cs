@@ -155,5 +155,82 @@ namespace gym_management_server.Tests.Integration
             var message = body.GetProperty("errors")[0].GetProperty("message").GetString();
             Assert.Contains("trùng với dòng 2", message);
         }
+
+        // Upload guards -- these four are hand-duplicated line-for-line in
+        // ServicePackageController.Import from MemberController.Import (see ImportApiTests'
+        // equivalents), so a regression in the copy needs its own test on the copy rather than
+        // relying on the Member side's coverage.
+
+        [Fact]
+        public async Task An_upload_over_5MB_is_rejected_with_a_400()
+        {
+            var oversized = new byte[5 * 1024 * 1024 + 1];
+            var content = new MultipartFormDataContent();
+            content.Add(new ByteArrayContent(oversized), "file", "import.xlsx");
+
+            var response = await _factory.CreateAuthenticatedClient(0)
+                .PostAsync("/api/ServicePackage/import?dryRun=true", content);
+
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            var body = await response.Content.ReadFromJsonAsync<JsonElement>();
+            Assert.Contains("5 MB", body.GetProperty("message").GetString());
+        }
+
+        [Fact]
+        public async Task A_non_xlsx_upload_is_rejected_with_a_400()
+        {
+            var content = new MultipartFormDataContent();
+            content.Add(new ByteArrayContent(new byte[] { 1, 2, 3, 4 }), "file", "import.txt");
+
+            var response = await _factory.CreateAuthenticatedClient(0)
+                .PostAsync("/api/ServicePackage/import?dryRun=true", content);
+
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            var body = await response.Content.ReadFromJsonAsync<JsonElement>();
+            Assert.Contains(".xlsx", body.GetProperty("message").GetString());
+        }
+
+        [Fact]
+        public async Task A_request_with_no_file_part_is_rejected_with_a_400()
+        {
+            // A MultipartFormDataContent with literally zero parts serializes to a body the
+            // server's own form reader rejects before routing even runs ("invalid
+            // Content-Disposition value"), which isn't the case under test here. Include an
+            // unrelated field so the request is a well-formed multipart upload that simply
+            // omits "file".
+            var content = new MultipartFormDataContent();
+            content.Add(new StringContent("x"), "note");
+
+            var response = await _factory.CreateAuthenticatedClient(0)
+                .PostAsync("/api/ServicePackage/import?dryRun=true", content);
+
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            var body = await response.Content.ReadFromJsonAsync<JsonElement>();
+            Assert.Contains("Chưa chọn file", body.GetProperty("message").GetString());
+        }
+
+        [Fact]
+        public async Task A_corrupt_but_zip_shaped_upload_is_rejected_with_a_400_not_a_500()
+        {
+            var stream = new MemoryStream();
+            using (var zip = new System.IO.Compression.ZipArchive(
+                       stream, System.IO.Compression.ZipArchiveMode.Create, leaveOpen: true))
+            {
+                // Deliberately no entries: a valid, empty ZIP archive, which is not a valid
+                // OOXML workbook.
+            }
+
+            var content = new MultipartFormDataContent();
+            content.Add(new ByteArrayContent(stream.ToArray()), "file", "import.xlsx");
+
+            var response = await _factory.CreateAuthenticatedClient(0)
+                .PostAsync("/api/ServicePackage/import?dryRun=true", content);
+
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            var body = await response.Content.ReadFromJsonAsync<JsonElement>();
+            var message = body.GetProperty("message").GetString();
+            Assert.False(string.IsNullOrWhiteSpace(message));
+            Assert.Contains("Excel", message);
+        }
     }
 }

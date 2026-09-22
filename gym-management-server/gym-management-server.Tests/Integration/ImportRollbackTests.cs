@@ -168,7 +168,15 @@ namespace gym_management_server.Tests.Integration
             using var wb = new XLWorkbook();
             var ws = wb.Worksheets.Add("Gói dịch vụ");
             ws.Cell(1, 1).Value = "Tên gói";
+            // "Số ngày" became a required column (final review, item 5): without it here, the
+            // reader rejects the file at the header-check stage with "Thiếu cột bắt buộc" before
+            // ImportAsync ever reaches the transaction or the throwing repository, so the test
+            // below would pass for the wrong reason -- its assertions all coincidentally still
+            // hold for a file that was rejected outright, never reaching the rollback path the
+            // test exists to prove.
+            ws.Cell(1, 2).Value = "Số ngày";
             ws.Cell(2, 1).Value = name;
+            ws.Cell(2, 2).Value = 30;
 
             var stream = new MemoryStream();
             wb.SaveAs(stream);
