@@ -84,6 +84,7 @@ namespace gym_management_server.Tests.Unit
         [InlineData("1.500.000", 1500000)]
         [InlineData("1,500,000", 1500000)]
         [InlineData("1500000", 1500000)]
+        [InlineData("1.500", 1500)]
         public void Prices_typed_as_text_tolerate_the_thousands_separators_real_spreadsheets_contain(
             string input, decimal expected)
         {
@@ -107,6 +108,29 @@ namespace gym_management_server.Tests.Unit
         }
 
         [Fact]
+        public void A_comma_decimal_mark_is_not_mistaken_for_a_thousands_separator()
+        {
+            // The decimal-comma mirror of the bug above: NumberStyles.AllowThousands does
+            // not enforce 3-digit grouping, so a naive invariant TryParse reads "1,5" as
+            // 15 (dropping the comma as if it were a thousands mark) instead of 1.5 (the
+            // Vietnamese decimal mark). A single separator followed by exactly one digit
+            // is unambiguously a decimal mark, whichever character it is.
+            var row = new ServicePackageRow();
+            ParsePackage("Đơn giá", row, "1,5");
+            Assert.Equal(1.5m, row.Price);
+        }
+
+        [Theory]
+        [InlineData("12,34")]  // trailing group is 2 digits: neither a clean thousands group nor one decimal digit
+        [InlineData("1,2345")] // trailing group is 4 digits: same ambiguity
+        public void An_ambiguous_separator_is_rejected_rather_than_guessed(string input)
+        {
+            var row = new ServicePackageRow();
+            var ex = Assert.Throws<FormatException>(() => ParsePackage("Đơn giá", row, input));
+            Assert.Contains("không phải số tiền hợp lệ", ex.Message);
+        }
+
+        [Fact]
         public void A_number_cell_in_scientific_notation_still_parses_as_money()
         {
             // double.ToString(InvariantCulture) emits scientific notation outside roughly
@@ -123,6 +147,37 @@ namespace gym_management_server.Tests.Unit
             var row = new ServicePackageRow();
             ParsePackage("Số ngày", row, "1E+2");
             Assert.Equal(100, row.DurationDays);
+        }
+
+        [Theory]
+        [InlineData("+84901234567")]
+        [InlineData("0901234567")]
+        [InlineData("84901234567")]
+        [InlineData("090 123 4567")]
+        [InlineData("090-123-4567")]
+        public void Phone_numbers_in_every_written_form_normalize_to_the_same_domestic_string(string input)
+        {
+            // Task 3 detects duplicate members by exact phone-string comparison; the same
+            // subscriber written as "+84...", "84..." or "0..." (with or without spaces or
+            // dashes) must collapse to ONE canonical string or duplicate detection misses it.
+            var row = new MemberRow();
+            Parse("Số điện thoại", row, input);
+            Assert.Equal("0901234567", row.PhoneNumber);
+        }
+
+        [Fact]
+        public void A_truncated_phone_number_is_rejected()
+        {
+            var ex = Assert.Throws<FormatException>(() => Parse("Số điện thoại", new MemberRow(), "0123456"));
+            Assert.Contains("không phải số điện thoại hợp lệ", ex.Message);
+        }
+
+        [Fact]
+        public void The_emergency_contact_phone_column_normalizes_the_same_way()
+        {
+            var row = new MemberRow();
+            Parse("SĐT khẩn cấp", row, "+84901234567");
+            Assert.Equal("0901234567", row.EmergencyPhone);
         }
 
         [Theory]
