@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { DxDataGridComponent } from 'devextreme-angular/ui/data-grid';
 import { MemberService } from '../../../../shared/services/api.service';
 import { EnumService, LookupOption } from '../../../../shared/services/enum.service';
 import { Member } from '../../../../shared/models';
@@ -14,6 +15,8 @@ import CustomStore from 'devextreme/data/custom_store';
     styleUrls: ['./member-list.component.scss']
 })
 export class MemberListComponent implements OnInit {
+    @ViewChild(DxDataGridComponent) grid!: DxDataGridComponent;
+
     dataSource: any;
     genderOptions: LookupOption[] = [];
     statusOptions: LookupOption[] = [];
@@ -56,6 +59,10 @@ export class MemberListComponent implements OnInit {
                 return this.memberService.delete(key).toPromise() as Promise<any>;
             }
         });
+    }
+
+    reload(): void {
+        this.grid?.instance?.refresh();
     }
 
     openCamera(member: any): void {

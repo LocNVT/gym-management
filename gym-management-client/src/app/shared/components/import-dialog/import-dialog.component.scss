@@ -1,0 +1,28 @@
+input[type='file'] {
+  display: block;
+  margin: 16px 0;
+}
+
+.failure {
+  color: #b3261e;
+}
+
+.ok {
+  color: #1b5e20;
+}
+
+.errors {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+    padding: 6px 8px;
+    text-align: left;
+  }
+
+  th {
+    font-weight: 600;
+  }
+}

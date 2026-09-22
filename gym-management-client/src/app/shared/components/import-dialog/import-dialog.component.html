@@ -1,0 +1,39 @@
+<h2 mat-dialog-title>{{ data.title }}</h2>
+
+<mat-dialog-content>
+  <button mat-stroked-button (click)="downloadTemplate()">
+    <mat-icon>download</mat-icon> Tải file mẫu
+  </button>
+
+  <input type="file" accept=".xlsx" (change)="pick($event)" [disabled]="busy" />
+
+  <p *ngIf="failure" class="failure">{{ failure }}</p>
+
+  <ng-container *ngIf="result">
+    <p *ngIf="result.isClean" class="ok">
+      Đã kiểm tra {{ result.totalRows }} dòng, không có lỗi. Bấm "Nhập dữ liệu" để ghi vào hệ thống.
+    </p>
+
+    <ng-container *ngIf="!result.isClean">
+      <p class="failure">
+        Tìm thấy {{ result.errors.length }} lỗi. Không dòng nào được nhập cho tới khi sửa hết.
+      </p>
+      <table class="errors">
+        <tr><th>Dòng</th><th>Cột</th><th>Lỗi</th></tr>
+        <tr *ngFor="let e of result.errors">
+          <td>{{ e.rowNumber }}</td>
+          <td>{{ e.columnHeader ?? '' }}</td>
+          <td>{{ e.message }}</td>
+        </tr>
+      </table>
+    </ng-container>
+  </ng-container>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close [disabled]="busy">Đóng</button>
+  <button mat-button (click)="check()" [disabled]="!file || busy">Kiểm tra</button>
+  <button mat-raised-button color="primary" (click)="commit()" [disabled]="!canCommit || busy">
+    Nhập dữ liệu
+  </button>
+</mat-dialog-actions>

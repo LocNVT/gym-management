@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { DxDataGridComponent } from 'devextreme-angular/ui/data-grid';
 import { ServicePackageService } from '../../../../shared/services/api.service';
 import CustomStore from 'devextreme/data/custom_store';
 
@@ -9,6 +10,8 @@ import CustomStore from 'devextreme/data/custom_store';
     styleUrls: ['./service-package-list.component.scss']
 })
 export class ServicePackageListComponent implements OnInit {
+    @ViewChild(DxDataGridComponent) grid!: DxDataGridComponent;
+
     dataSource: any;
 
     constructor(private svc: ServicePackageService) { }
@@ -28,5 +31,9 @@ export class ServicePackageListComponent implements OnInit {
                     .then((e: any) => this.svc.update(key, { ...e, ...values }).toPromise()) as Promise<any>,
             remove: (key: string) => this.svc.delete(key).toPromise() as Promise<any>
         });
+    }
+
+    reload(): void {
+        this.grid?.instance?.refresh();
     }
 }

@@ -5,6 +5,12 @@
 <div class="content-card">
     <div class="grid-toolbar">
       <app-export-button [url]="'/api/ServicePackage/export'" [fallbackName]="'goi-dich-vu.xlsx'"></app-export-button>
+      <app-import-button
+        [baseUrl]="'/api/ServicePackage'"
+        [title]="'Nhập gói dịch vụ từ Excel'"
+        [templateName]="'mau-nhap-goi-dich-vu.xlsx'"
+        (imported)="reload()">
+      </app-import-button>
     </div>
     <dx-data-grid [dataSource]="dataSource" [showBorders]="false" [rowAlternationEnabled]="true" [columnAutoWidth]="true"
         [remoteOperations]="{ paging: true }">
