@@ -1,6 +1,7 @@
 ﻿using gym_management_server.DTOs.Members;
 using gym_management_server.Entities.Members;
 using gym_management_server.Infrastructure.Excel;
+using gym_management_server.Services.Import;
 using gym_management_server.Services.Members;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,13 +12,17 @@ namespace gym_management_server.Controllers
     [Route("api/[controller]")]
     public class MemberController : ControllerBase
     {
+        private const long MaxUploadBytes = 5 * 1024 * 1024;
+
         private readonly MemberService _service;
         private readonly IWebHostEnvironment _env;
+        private readonly MemberImportService _importService;
 
-        public MemberController(MemberService service, IWebHostEnvironment env)
+        public MemberController(MemberService service, IWebHostEnvironment env, MemberImportService importService)
         {
             _service = service;
             _env = env;
+            _importService = importService;
         }
 
         [HttpGet]
@@ -95,6 +100,38 @@ namespace gym_management_server.Controllers
             catch (ExcelRowLimitExceededException ex)
             {
                 return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("import/template")]
+        [Authorize]
+        public IActionResult ImportTemplate() =>
+            ExcelFileResult.File(ExcelTemplateWriter.Write(MemberSheet.Import), "mau-nhap-thanh-vien");
+
+        /// <summary>
+        /// dryRun=true validates and writes nothing. dryRun=false writes, but only if the file is
+        /// completely clean. There is no server-side state between the two calls: the client sends
+        /// the same file twice.
+        /// </summary>
+        [HttpPost("import")]
+        [Authorize]
+        public async Task<IActionResult> Import(IFormFile file, [FromQuery] bool dryRun = true)
+        {
+            if (file is null || file.Length == 0)
+                return BadRequest(new { message = "Chưa chọn file." });
+            if (file.Length > MaxUploadBytes)
+                return BadRequest(new { message = "File vượt quá 5 MB." });
+            if (!file.FileName.EndsWith(".xlsx", StringComparison.OrdinalIgnoreCase))
+                return BadRequest(new { message = "Chỉ chấp nhận file .xlsx." });
+
+            await using var stream = file.OpenReadStream();
+            try
+            {
+                return Ok(await _importService.ImportAsync(stream, dryRun));
+            }
+            catch (Exception ex) when (ex is InvalidOperationException or FormatException)
+            {
+                return BadRequest(new { message = $"Không đọc được file: {ex.Message}" });
             }
         }
     }
