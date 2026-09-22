@@ -4,6 +4,7 @@ import { AttendanceDevicesRoutingModule } from './attendance-devices-routing.mod
 import { DeviceListComponent } from './components/device-list/device-list.component';
 import { DxDataGridModule } from 'devextreme-angular/ui/data-grid';
 import { DxButtonModule } from 'devextreme-angular/ui/button';
+import { ExportButtonModule } from '../../shared/components/export-button/export-button.module';
 
 @NgModule({
     declarations: [DeviceListComponent],
@@ -11,7 +12,8 @@ import { DxButtonModule } from 'devextreme-angular/ui/button';
         CommonModule,
         AttendanceDevicesRoutingModule,
         DxDataGridModule,
-        DxButtonModule
+        DxButtonModule,
+        ExportButtonModule
     ]
 })
 export class AttendanceDevicesModule { }

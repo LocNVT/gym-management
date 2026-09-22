@@ -1,0 +1,4 @@
+<button mat-stroked-button color="primary" [disabled]="busy" (click)="export()">
+  <mat-icon>file_download</mat-icon>
+  {{ busy ? 'Đang xuất...' : 'Xuất Excel' }}
+</button>

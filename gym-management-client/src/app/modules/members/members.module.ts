@@ -10,6 +10,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { ExportButtonModule } from '../../shared/components/export-button/export-button.module';
 
 @NgModule({
     declarations: [MemberListComponent, CameraDialogComponent],
@@ -21,7 +22,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
         MatDialogModule,
         MatButtonModule,
         MatIconModule,
-        MatSnackBarModule
+        MatSnackBarModule,
+        ExportButtonModule
     ]
 })
 export class MembersModule { }

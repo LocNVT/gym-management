@@ -3,6 +3,9 @@
 </div>
 
 <div class="content-card">
+    <div class="grid-toolbar">
+      <app-export-button [url]="'/api/Invoice/export'" [fallbackName]="'hoa-don.xlsx'"></app-export-button>
+    </div>
     <dx-data-grid [dataSource]="dataSource" [showBorders]="false" [rowAlternationEnabled]="true" [columnAutoWidth]="true"
         [remoteOperations]="{ paging: true }">
 

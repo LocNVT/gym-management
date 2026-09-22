@@ -3,6 +3,9 @@
 </div>
 
 <div class="content-card">
+    <div class="grid-toolbar">
+      <app-export-button [url]="'/api/Trainer/export'" [fallbackName]="'huan-luyen-vien.xlsx'"></app-export-button>
+    </div>
     <dx-data-grid [dataSource]="dataSource" [showBorders]="false" [rowAlternationEnabled]="true" [columnAutoWidth]="true"
         [remoteOperations]="{ paging: true }">
 
