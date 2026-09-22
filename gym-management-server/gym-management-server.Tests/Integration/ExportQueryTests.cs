@@ -3,8 +3,11 @@ using gym_management_server.Entities.Enums;
 using gym_management_server.Entities.Invoices;
 using gym_management_server.Entities.InvoiceItems;
 using gym_management_server.Entities.Members;
+using gym_management_server.Entities.Trainers;
+using gym_management_server.Infrastructure.Excel;
 using gym_management_server.Repositories.Invoices;
 using gym_management_server.Repositories.Members;
+using gym_management_server.Repositories.Trainers;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 
@@ -67,6 +70,26 @@ namespace gym_management_server.Tests.Integration
                 .GetForExportAsync(new DateTime(2026, 5, 1), new DateTime(2026, 5, 31));
 
             Assert.Single(invoices);   // 23:30 on the last day must still be inside the range
+        }
+
+        [Fact]
+        public async Task Export_query_caps_at_MaxRows_plus_one_so_the_row_limit_guard_still_fires()
+        {
+            // The `+ 1` matters: ExcelWriter.Write only throws when the row count *exceeds*
+            // MaxRows, so a repository that truncated to exactly MaxRows would silently hand
+            // the caller an incomplete file instead of the row-limit error.
+            using var db = NewContext();
+            var trainers = new List<Trainer>(ExcelWriter.MaxRows + 50);
+            for (var i = 0; i < ExcelWriter.MaxRows + 50; i++)
+            {
+                trainers.Add(new Trainer { Id = Guid.NewGuid(), FullName = $"Trainer {i:D6}" });
+            }
+            db.Trainers.AddRange(trainers);
+            await db.SaveChangesAsync();
+
+            var rows = await new TrainerRepository(db).GetForExportAsync();
+
+            Assert.Equal(ExcelWriter.MaxRows + 1, rows.Count);
         }
     }
 }

@@ -1,6 +1,7 @@
 using gym_management_server.Data.EntityFramework;
 using gym_management_server.DTOs.Export;
 using gym_management_server.Entities.Expenses;
+using gym_management_server.Infrastructure.Excel;
 using Microsoft.EntityFrameworkCore;
 
 namespace gym_management_server.Repositories.Expenses
@@ -73,6 +74,7 @@ namespace gym_management_server.Repositories.Expenses
                     PaymentMethod = x.PaymentMethod,
                     Notes = x.Notes,
                 })
+                .Take(ExcelWriter.MaxRows + 1)
                 .ToListAsync();
         }
     }

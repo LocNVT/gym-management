@@ -1,6 +1,7 @@
 using gym_management_server.Data.EntityFramework;
 using gym_management_server.DTOs.Export;
 using gym_management_server.Entities.Invoices;
+using gym_management_server.Infrastructure.Excel;
 using Microsoft.EntityFrameworkCore;
 
 namespace gym_management_server.Repositories.Invoices
@@ -75,6 +76,10 @@ namespace gym_management_server.Repositories.Invoices
                     PaymentMethod = x.PaymentMethod,
                     Notes = x.Notes,
                 })
+                // Cap the invoice side of the export so one request can't materialise an
+                // unbounded number of invoices; the item query below is filtered to only
+                // these (already-capped) invoice numbers, so it stays consistent with them.
+                .Take(ExcelWriter.MaxRows + 1)
                 .ToListAsync();
 
             var numbers = invoices.Select(i => i.InvoiceNumber).ToList();

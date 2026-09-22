@@ -18,7 +18,6 @@ import { AppComponent } from './app.component';
 import { HeaderComponent } from './shared/components/header/header';
 import { SidebarComponent } from './shared/components/sidebar/sidebar';
 import { LoadingComponent } from './shared/components/loading/loading';
-import { ExportButtonModule } from './shared/components/export-button/export-button.module';
 
 // Auth
 import { AuthInterceptor } from './shared/interceptors/auth.interceptor';
@@ -42,8 +41,7 @@ import { AuthInterceptor } from './shared/interceptors/auth.interceptor';
     MatListModule,
     MatIconModule,
     MatButtonModule,
-    MatMenuModule,
-    ExportButtonModule
+    MatMenuModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }

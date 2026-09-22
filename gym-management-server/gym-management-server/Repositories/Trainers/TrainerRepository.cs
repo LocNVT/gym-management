@@ -1,6 +1,7 @@
 using gym_management_server.Data.EntityFramework;
 using gym_management_server.DTOs.Export;
 using gym_management_server.Entities.Trainers;
+using gym_management_server.Infrastructure.Excel;
 using Microsoft.EntityFrameworkCore;
 
 namespace gym_management_server.Repositories.Trainers
@@ -68,6 +69,7 @@ namespace gym_management_server.Repositories.Trainers
                     Status = x.Status,
                     Notes = x.Notes,
                 })
+                .Take(ExcelWriter.MaxRows + 1)
                 .ToListAsync();
     }
 }

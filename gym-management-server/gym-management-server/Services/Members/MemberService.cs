@@ -43,6 +43,8 @@ namespace gym_management_server.Services.Members
             member.Email = input.Email;
             member.EmergencyName = input.EmergencyName;
             member.EmergencyPhone = input.EmergencyPhone;
+            member.Gender = input.Gender;
+            member.Notes = input.Notes;
 
             await _memberRepository.AddAsync(member);
             return _mapObjects.MapObjects<Member, MemberOutput>(member);
@@ -62,6 +64,8 @@ namespace gym_management_server.Services.Members
             member.Email = input.Email;
             member.EmergencyName = input.EmergencyName;
             member.EmergencyPhone = input.EmergencyPhone;
+            member.Gender = input.Gender;
+            member.Notes = input.Notes;
 
             await _memberRepository.UpdateAsync(member);
             return _mapObjects.MapObjects<Member, MemberOutput>(member);

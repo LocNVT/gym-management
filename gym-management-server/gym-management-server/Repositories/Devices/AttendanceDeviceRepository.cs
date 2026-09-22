@@ -1,6 +1,7 @@
 using gym_management_server.Data.EntityFramework;
 using gym_management_server.DTOs.Export;
 using gym_management_server.Entities.Devices;
+using gym_management_server.Infrastructure.Excel;
 using Microsoft.EntityFrameworkCore;
 
 namespace gym_management_server.Repositories.Devices
@@ -70,6 +71,7 @@ namespace gym_management_server.Repositories.Devices
                     IsActive = x.IsActive,
                     CreatedAt = x.CreatedAt,
                 })
+                .Take(ExcelWriter.MaxRows + 1)
                 .ToListAsync();
     }
 }

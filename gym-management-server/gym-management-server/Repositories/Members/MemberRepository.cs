@@ -1,6 +1,7 @@
 ﻿using gym_management_server.Data.EntityFramework;
 using gym_management_server.DTOs.Export;
 using gym_management_server.Entities.Members;
+using gym_management_server.Infrastructure.Excel;
 using Microsoft.EntityFrameworkCore;
 
 namespace gym_management_server.Repositories.Members
@@ -71,6 +72,7 @@ namespace gym_management_server.Repositories.Members
                     RegistrationDate = x.RegistrationDate,
                     CreatedAt = x.CreatedAt,
                 })
+                .Take(ExcelWriter.MaxRows + 1)
                 .ToListAsync();
     }
 }

@@ -51,6 +51,13 @@ body {
   overflow: hidden;
 }
 
+/* ── Grid toolbar (wraps per-grid actions like the Excel export button) ── */
+.grid-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}
+
 /* ── DevExtreme overrides ── */
 .dx-datagrid {
   font-family: Roboto, 'Helvetica Neue', sans-serif;

@@ -1,6 +1,7 @@
 ﻿using gym_management_server.Data.EntityFramework;
 using gym_management_server.DTOs.Export;
 using gym_management_server.Entities.CheckIns;
+using gym_management_server.Infrastructure.Excel;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
@@ -139,6 +140,7 @@ namespace gym_management_server.Repositories.CheckIns
                     DeviceName = x.Device != null ? x.Device.Name : null,
                     Notes = x.Notes,
                 })
+                .Take(ExcelWriter.MaxRows + 1)
                 .ToListAsync();
         }
     }
