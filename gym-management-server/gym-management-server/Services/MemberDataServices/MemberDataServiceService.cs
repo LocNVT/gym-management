@@ -1,5 +1,6 @@
 ﻿using gym_management_server.DTOs.Common;
 using gym_management_server.Entities.MemberDataServices;
+using gym_management_server.Infrastructure.Excel;
 using gym_management_server.Repositories.MemberDataServices;
 
 namespace gym_management_server.Services.MemberDataServices
@@ -73,5 +74,8 @@ namespace gym_management_server.Services.MemberDataServices
             await _memberDataServiceRepository.DeleteAsync(id);
             return true;
         }
+
+        public async Task<byte[]> ExportAsync(DateTime? from, DateTime? to) =>
+            ExcelWriter.Write(MemberDataServiceSheet.Export, await _memberDataServiceRepository.GetForExportAsync(from, to));
     }
 }

@@ -1,6 +1,8 @@
 ﻿using gym_management_server.DTOs.Members;
 using gym_management_server.Entities.Members;
+using gym_management_server.Infrastructure.Excel;
 using gym_management_server.Services.Members;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace gym_management_server.Controllers
@@ -80,6 +82,20 @@ namespace gym_management_server.Controllers
             };
 
             return PhysicalFile(filePath, contentType);
+        }
+
+        [HttpGet("export")]
+        [Authorize]
+        public async Task<IActionResult> Export()
+        {
+            try
+            {
+                return ExcelFileResult.File(await _service.ExportAsync(), "thanh-vien");
+            }
+            catch (ExcelRowLimitExceededException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
     }
 }

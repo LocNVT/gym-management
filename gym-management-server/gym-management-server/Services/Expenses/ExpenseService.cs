@@ -1,6 +1,7 @@
 using gym_management_server.DTOs.Common;
 using gym_management_server.DTOs.Expenses;
 using gym_management_server.Entities.Expenses;
+using gym_management_server.Infrastructure.Excel;
 using gym_management_server.Repositories.Expenses;
 
 namespace gym_management_server.Services.Expenses
@@ -70,5 +71,8 @@ namespace gym_management_server.Services.Expenses
             await _expenseRepository.DeleteAsync(id);
             return true;
         }
+
+        public async Task<byte[]> ExportAsync(DateTime? from, DateTime? to) =>
+            ExcelWriter.Write(ExpenseSheet.Export, await _expenseRepository.GetForExportAsync(from, to));
     }
 }

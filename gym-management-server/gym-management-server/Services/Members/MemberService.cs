@@ -1,6 +1,7 @@
 ﻿using gym_management_server.DTOs.Common;
 using gym_management_server.DTOs.Members;
 using gym_management_server.Entities.Members;
+using gym_management_server.Infrastructure.Excel;
 using gym_management_server.Repositories.Members;
 
 namespace gym_management_server.Services.Members
@@ -114,5 +115,8 @@ namespace gym_management_server.Services.Members
             var filePath = Path.Combine(webRootPath, member.AvatarUrl.TrimStart('/'));
             return File.Exists(filePath) ? filePath : null;
         }
+
+        public async Task<byte[]> ExportAsync() =>
+            ExcelWriter.Write(MemberSheet.Export, await _memberRepository.GetForExportAsync());
     }
 }

@@ -1,6 +1,7 @@
 using gym_management_server.DTOs.Common;
 using gym_management_server.DTOs.Trainers;
 using gym_management_server.Entities.Trainers;
+using gym_management_server.Infrastructure.Excel;
 using gym_management_server.Repositories.Trainers;
 
 namespace gym_management_server.Services.Trainers
@@ -72,5 +73,8 @@ namespace gym_management_server.Services.Trainers
             await _trainerRepository.DeleteAsync(id);
             return true;
         }
+
+        public async Task<byte[]> ExportAsync() =>
+            ExcelWriter.Write(TrainerSheet.Export, await _trainerRepository.GetForExportAsync());
     }
 }

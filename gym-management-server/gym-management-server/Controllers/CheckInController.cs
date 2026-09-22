@@ -1,5 +1,7 @@
 ﻿using gym_management_server.Entities.CheckIns;
+using gym_management_server.Infrastructure.Excel;
 using gym_management_server.Services.CheckIns;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace gym_management_server.Controllers
@@ -45,6 +47,20 @@ namespace gym_management_server.Controllers
         {
             var success = await _service.DeleteAsync(id);
             return success ? NoContent() : NotFound();
+        }
+
+        [HttpGet("export")]
+        [Authorize]
+        public async Task<IActionResult> Export([FromQuery] DateTime? from = null, [FromQuery] DateTime? to = null)
+        {
+            try
+            {
+                return ExcelFileResult.File(await _service.ExportAsync(from, to), "lich-su-diem-danh");
+            }
+            catch (ExcelRowLimitExceededException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
     }
 }

@@ -1,6 +1,8 @@
 using gym_management_server.DTOs.Common;
+using gym_management_server.DTOs.Export;
 using gym_management_server.DTOs.Invoices;
 using gym_management_server.Entities.Invoices;
+using gym_management_server.Infrastructure.Excel;
 using gym_management_server.Repositories.Invoices;
 
 namespace gym_management_server.Services.Invoices
@@ -71,6 +73,14 @@ namespace gym_management_server.Services.Invoices
 
             await _invoiceRepository.DeleteAsync(id);
             return true;
+        }
+
+        public async Task<byte[]> ExportAsync(DateTime? from, DateTime? to)
+        {
+            var (invoices, items) = await _invoiceRepository.GetForExportAsync(from, to);
+            return ExcelWriter.Write(
+                new SheetPayload<InvoiceRow>(InvoiceSheet.Export, invoices),
+                new SheetPayload<InvoiceItemRow>(InvoiceSheet.Items, items));
         }
     }
 }

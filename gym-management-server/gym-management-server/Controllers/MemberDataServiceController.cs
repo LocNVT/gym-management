@@ -1,5 +1,7 @@
 ﻿using gym_management_server.Entities.MemberDataServices;
+using gym_management_server.Infrastructure.Excel;
 using gym_management_server.Services.MemberDataServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace gym_management_server.Controllers
@@ -44,6 +46,20 @@ namespace gym_management_server.Controllers
         {
             var memberDataService = await _service.UpdateAsync(id, input);
             return memberDataService == null ? NotFound() : Ok(memberDataService);
+        }
+
+        [HttpGet("export")]
+        [Authorize]
+        public async Task<IActionResult> Export([FromQuery] DateTime? from = null, [FromQuery] DateTime? to = null)
+        {
+            try
+            {
+                return ExcelFileResult.File(await _service.ExportAsync(from, to), "dang-ky-goi");
+            }
+            catch (ExcelRowLimitExceededException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
     }
 }

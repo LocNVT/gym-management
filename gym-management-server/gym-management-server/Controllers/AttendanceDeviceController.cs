@@ -1,4 +1,5 @@
 using gym_management_server.DTOs.Devices;
+using gym_management_server.Infrastructure.Excel;
 using gym_management_server.Services.Devices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -47,6 +48,21 @@ namespace gym_management_server.Controllers
         {
             var success = await _service.DeleteAsync(id);
             return success ? NoContent() : NotFound();
+        }
+
+        // No [Authorize] needed here: this endpoint inherits the controller's class-level
+        // [Authorize(Roles = "1")] above, same as every other action in this controller.
+        [HttpGet("export")]
+        public async Task<IActionResult> Export()
+        {
+            try
+            {
+                return ExcelFileResult.File(await _service.ExportAsync(), "thiet-bi-diem-danh");
+            }
+            catch (ExcelRowLimitExceededException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
     }
 }

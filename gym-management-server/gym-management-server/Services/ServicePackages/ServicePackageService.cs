@@ -1,6 +1,7 @@
 using gym_management_server.DTOs.Common;
 using gym_management_server.DTOs.ServicePackages;
 using gym_management_server.Entities.ServicePackages;
+using gym_management_server.Infrastructure.Excel;
 using gym_management_server.Repositories.ServicePackages;
 
 namespace gym_management_server.Services.ServicePackages
@@ -72,5 +73,8 @@ namespace gym_management_server.Services.ServicePackages
             await _servicePackageRepository.DeleteAsync(id);
             return true;
         }
+
+        public async Task<byte[]> ExportAsync() =>
+            ExcelWriter.Write(ServicePackageSheet.Export, await _servicePackageRepository.GetForExportAsync());
     }
 }
