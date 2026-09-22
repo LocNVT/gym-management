@@ -1,4 +1,5 @@
 ﻿using gym_management_server.Data.EntityFramework;
+using gym_management_server.DTOs.Export;
 using gym_management_server.Entities.Members;
 using Microsoft.EntityFrameworkCore;
 
@@ -49,5 +50,27 @@ namespace gym_management_server.Repositories.Members
             _db.Members.Update(member);
             await _db.SaveChangesAsync();
         }
+
+        public async Task<List<MemberRow>> GetForExportAsync() =>
+            await _db.Members
+                .Where(x => !x.IsDeleted)
+                .OrderBy(x => x.FullName)
+                .Select(x => new MemberRow
+                {
+                    Id = x.Id,
+                    FullName = x.FullName,
+                    PhoneNumber = x.PhoneNumber,
+                    Email = x.Email,
+                    DateOfBirth = x.DateOfBirth,
+                    Gender = x.Gender,
+                    Address = x.Address,
+                    EmergencyName = x.EmergencyName,
+                    EmergencyPhone = x.EmergencyPhone,
+                    Status = x.Status,
+                    Notes = x.Notes,
+                    RegistrationDate = x.RegistrationDate,
+                    CreatedAt = x.CreatedAt,
+                })
+                .ToListAsync();
     }
 }

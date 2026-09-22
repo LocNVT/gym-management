@@ -1,4 +1,5 @@
 ﻿using gym_management_server.Data.EntityFramework;
+using gym_management_server.DTOs.Export;
 using gym_management_server.Entities.MemberDataServices;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
@@ -59,6 +60,30 @@ namespace gym_management_server.Repositories.MemberDataServices
         {
             _db.MemberDataServices.Update(MemberDataService);
             await _db.SaveChangesAsync();
+        }
+
+        public async Task<List<SubscriptionRow>> GetForExportAsync(DateTime? from, DateTime? to)
+        {
+            var query = _db.MemberDataServices.AsQueryable();
+            if (from.HasValue) query = query.Where(x => x.StartDate >= from.Value.Date);
+            // `to` is inclusive of the whole day the caller picked.
+            if (to.HasValue) query = query.Where(x => x.StartDate < to.Value.Date.AddDays(1));
+
+            return await query
+                .OrderByDescending(x => x.StartDate)
+                .Select(x => new SubscriptionRow
+                {
+                    Id = x.Id,
+                    MemberName = x.Member.FullName,
+                    MemberPhone = x.Member.PhoneNumber,
+                    PackageName = x.ServicePackage.Name,
+                    StartDate = x.StartDate,
+                    EndDate = x.EndDate,
+                    PriceAtPurchase = x.PriceAtPurchase,
+                    RemainingCheckins = x.RemainingCheckins,
+                    Status = x.Status,
+                })
+                .ToListAsync();
         }
     }
 }

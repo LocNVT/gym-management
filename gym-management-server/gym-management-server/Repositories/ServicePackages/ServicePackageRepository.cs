@@ -1,4 +1,5 @@
 using gym_management_server.Data.EntityFramework;
+using gym_management_server.DTOs.Export;
 using gym_management_server.Entities.ServicePackages;
 using Microsoft.EntityFrameworkCore;
 
@@ -52,5 +53,21 @@ namespace gym_management_server.Repositories.ServicePackages
             _db.ServicePackages.Update(servicePackage);
             await _db.SaveChangesAsync();
         }
+
+        public async Task<List<ServicePackageRow>> GetForExportAsync() =>
+            await _db.ServicePackages
+                .OrderBy(x => x.Name)
+                .Select(x => new ServicePackageRow
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Description = x.Description,
+                    Price = x.Price,
+                    DurationDays = x.DurationDays,
+                    MaxCheckins = x.MaxCheckins,
+                    IsActive = x.IsActive,
+                    CreatedAt = x.CreatedAt,
+                })
+                .ToListAsync();
     }
 }

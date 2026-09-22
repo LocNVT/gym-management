@@ -1,3 +1,4 @@
+using gym_management_server.DTOs.Export;
 using gym_management_server.Entities.Devices;
 
 namespace gym_management_server.Repositories.Devices
@@ -10,5 +11,8 @@ namespace gym_management_server.Repositories.Devices
         Task AddAsync(AttendanceDevice device);
         Task UpdateAsync(AttendanceDevice device);
         Task DeleteAsync(Guid id);
+
+        /// <summary>All non-deleted devices, ordered by name, projected for Excel export.</summary>
+        Task<List<AttendanceDeviceRow>> GetForExportAsync();
     }
 }

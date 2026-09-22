@@ -1,4 +1,5 @@
 using gym_management_server.Data.EntityFramework;
+using gym_management_server.DTOs.Export;
 using gym_management_server.Entities.Expenses;
 using Microsoft.EntityFrameworkCore;
 
@@ -51,6 +52,28 @@ namespace gym_management_server.Repositories.Expenses
         {
             _db.Expenses.Update(expense);
             await _db.SaveChangesAsync();
+        }
+
+        public async Task<List<ExpenseRow>> GetForExportAsync(DateTime? from, DateTime? to)
+        {
+            var query = _db.Expenses.AsQueryable();
+            if (from.HasValue) query = query.Where(x => x.ExpenseDate >= from.Value.Date);
+            // `to` is inclusive of the whole day the caller picked.
+            if (to.HasValue) query = query.Where(x => x.ExpenseDate < to.Value.Date.AddDays(1));
+
+            return await query
+                .OrderByDescending(x => x.ExpenseDate)
+                .Select(x => new ExpenseRow
+                {
+                    Id = x.Id,
+                    ExpenseDate = x.ExpenseDate,
+                    Category = x.Category,
+                    Description = x.Description,
+                    Amount = x.Amount,
+                    PaymentMethod = x.PaymentMethod,
+                    Notes = x.Notes,
+                })
+                .ToListAsync();
         }
     }
 }

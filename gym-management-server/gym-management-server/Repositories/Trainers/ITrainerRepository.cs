@@ -1,3 +1,4 @@
+using gym_management_server.DTOs.Export;
 using gym_management_server.Entities.Trainers;
 
 namespace gym_management_server.Repositories.Trainers
@@ -10,5 +11,8 @@ namespace gym_management_server.Repositories.Trainers
         Task AddAsync(Trainer trainer);
         Task UpdateAsync(Trainer trainer);
         Task DeleteAsync(Guid id);
+
+        /// <summary>All trainers, ordered by name, projected for Excel export.</summary>
+        Task<List<TrainerRow>> GetForExportAsync();
     }
 }

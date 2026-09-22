@@ -1,4 +1,5 @@
-﻿using gym_management_server.Entities.CheckIns;
+﻿using gym_management_server.DTOs.Export;
+using gym_management_server.Entities.CheckIns;
 using System.Linq.Expressions;
 
 namespace gym_management_server.Repositories.CheckIns
@@ -32,5 +33,12 @@ namespace gym_management_server.Repositories.CheckIns
 
         /// <summary>Most recent sessions across all members, with Member loaded.</summary>
         Task<List<CheckIn>> GetRecentAsync(int count);
+
+        /// <summary>
+        /// Attendance sessions starting within [from, to] (inclusive of the whole `to` day), newest
+        /// first, with the member's/device's names resolved via their (device is nullable) navigations,
+        /// for Excel export.
+        /// </summary>
+        Task<List<AttendanceRow>> GetForExportAsync(DateTime? from, DateTime? to);
     }
 }

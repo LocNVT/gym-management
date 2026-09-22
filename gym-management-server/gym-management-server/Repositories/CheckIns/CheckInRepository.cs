@@ -1,4 +1,5 @@
 ﻿using gym_management_server.Data.EntityFramework;
+using gym_management_server.DTOs.Export;
 using gym_management_server.Entities.CheckIns;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
@@ -112,6 +113,32 @@ namespace gym_management_server.Repositories.CheckIns
                 .Include(x => x.Member)
                 .OrderByDescending(x => x.CheckOutTime ?? x.CheckInTime)
                 .Take(count)
+                .ToListAsync();
+        }
+
+        public async Task<List<AttendanceRow>> GetForExportAsync(DateTime? from, DateTime? to)
+        {
+            var query = _db.CheckIns.AsQueryable();
+            if (from.HasValue) query = query.Where(x => x.CheckInTime >= from.Value.Date);
+            // `to` is inclusive of the whole day the caller picked.
+            if (to.HasValue) query = query.Where(x => x.CheckInTime < to.Value.Date.AddDays(1));
+
+            return await query
+                .OrderByDescending(x => x.CheckInTime)
+                .Select(x => new AttendanceRow
+                {
+                    Id = x.Id,
+                    MemberName = x.Member.FullName,
+                    MemberPhone = x.Member.PhoneNumber,
+                    CheckInTime = x.CheckInTime,
+                    CheckOutTime = x.CheckOutTime,
+                    MinutesInside = x.CheckOutTime.HasValue
+                        ? (int?)(x.CheckOutTime.Value - x.CheckInTime).TotalMinutes
+                        : null,
+                    Method = x.Method,
+                    DeviceName = x.Device != null ? x.Device.Name : null,
+                    Notes = x.Notes,
+                })
                 .ToListAsync();
         }
     }

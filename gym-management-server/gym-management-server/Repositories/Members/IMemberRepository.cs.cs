@@ -1,4 +1,5 @@
-﻿using gym_management_server.Entities.Members;
+﻿using gym_management_server.DTOs.Export;
+using gym_management_server.Entities.Members;
 
 namespace gym_management_server.Repositories.Members
 {
@@ -10,5 +11,8 @@ namespace gym_management_server.Repositories.Members
         Task AddAsync(Member member);
         Task UpdateAsync(Member member);
         Task DeleteAsync(Guid id);
+
+        /// <summary>All non-deleted members, ordered by name, projected for Excel export.</summary>
+        Task<List<MemberRow>> GetForExportAsync();
     }
 }

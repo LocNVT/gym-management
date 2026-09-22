@@ -1,4 +1,5 @@
 using gym_management_server.Data.EntityFramework;
+using gym_management_server.DTOs.Export;
 using gym_management_server.Entities.Trainers;
 using Microsoft.EntityFrameworkCore;
 
@@ -52,5 +53,21 @@ namespace gym_management_server.Repositories.Trainers
             _db.Trainers.Update(trainer);
             await _db.SaveChangesAsync();
         }
+
+        public async Task<List<TrainerRow>> GetForExportAsync() =>
+            await _db.Trainers
+                .OrderBy(x => x.FullName)
+                .Select(x => new TrainerRow
+                {
+                    Id = x.Id,
+                    FullName = x.FullName,
+                    PhoneNumber = x.PhoneNumber,
+                    Email = x.Email,
+                    Specialty = x.Specialty,
+                    HourlyRate = x.HourlyRate,
+                    Status = x.Status,
+                    Notes = x.Notes,
+                })
+                .ToListAsync();
     }
 }

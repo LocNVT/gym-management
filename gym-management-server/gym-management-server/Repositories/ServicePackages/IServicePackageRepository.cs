@@ -1,3 +1,4 @@
+using gym_management_server.DTOs.Export;
 using gym_management_server.Entities.ServicePackages;
 
 namespace gym_management_server.Repositories.ServicePackages
@@ -10,5 +11,8 @@ namespace gym_management_server.Repositories.ServicePackages
         Task AddAsync(ServicePackage servicePackage);
         Task UpdateAsync(ServicePackage servicePackage);
         Task DeleteAsync(Guid id);
+
+        /// <summary>All service packages, ordered by name, projected for Excel export.</summary>
+        Task<List<ServicePackageRow>> GetForExportAsync();
     }
 }

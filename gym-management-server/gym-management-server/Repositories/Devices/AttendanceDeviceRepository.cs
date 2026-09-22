@@ -1,4 +1,5 @@
 using gym_management_server.Data.EntityFramework;
+using gym_management_server.DTOs.Export;
 using gym_management_server.Entities.Devices;
 using Microsoft.EntityFrameworkCore;
 
@@ -54,5 +55,21 @@ namespace gym_management_server.Repositories.Devices
                 await _db.SaveChangesAsync();
             }
         }
+
+        public async Task<List<AttendanceDeviceRow>> GetForExportAsync() =>
+            await _db.AttendanceDevices
+                .Where(x => !x.IsDeleted)
+                .OrderBy(x => x.Name)
+                .Select(x => new AttendanceDeviceRow
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Location = x.Location,
+                    Vendor = x.Vendor,
+                    SerialNumber = x.SerialNumber,
+                    IsActive = x.IsActive,
+                    CreatedAt = x.CreatedAt,
+                })
+                .ToListAsync();
     }
 }
