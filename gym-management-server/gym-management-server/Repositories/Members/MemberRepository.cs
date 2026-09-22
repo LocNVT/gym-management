@@ -74,5 +74,15 @@ namespace gym_management_server.Repositories.Members
                 })
                 .Take(ExcelWriter.MaxRows + 1)
                 .ToListAsync();
+
+        public async Task<List<string>> GetAllPhoneNumbersAsync() =>
+            await _db.Members.Where(x => !x.IsDeleted).Select(x => x.PhoneNumber).ToListAsync();
+
+        /// <summary>One SaveChanges for the whole batch, so the caller's transaction covers it.</summary>
+        public async Task AddRangeAsync(IEnumerable<Member> members)
+        {
+            _db.Members.AddRange(members);
+            await _db.SaveChangesAsync();
+        }
     }
 }

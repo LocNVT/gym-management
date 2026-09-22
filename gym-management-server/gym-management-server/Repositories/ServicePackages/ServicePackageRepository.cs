@@ -71,5 +71,15 @@ namespace gym_management_server.Repositories.ServicePackages
                 })
                 .Take(ExcelWriter.MaxRows + 1)
                 .ToListAsync();
+
+        public async Task<List<string>> GetAllNamesAsync() =>
+            await _db.ServicePackages.Select(x => x.Name).ToListAsync();
+
+        /// <summary>One SaveChanges for the whole batch, so the caller's transaction covers it.</summary>
+        public async Task AddRangeAsync(IEnumerable<ServicePackage> packages)
+        {
+            _db.ServicePackages.AddRange(packages);
+            await _db.SaveChangesAsync();
+        }
     }
 }

@@ -23,6 +23,7 @@ using gym_management_server.Services.Fingerprints;
 using gym_management_server.Services.Expenses;
 using gym_management_server.Services.InvoiceItems;
 using gym_management_server.Services.Invoices;
+using gym_management_server.Services.Import;
 using gym_management_server.Services.MemberDataServices;
 using gym_management_server.Services.Members;
 using gym_management_server.Services.ServicePackages;
@@ -44,6 +45,8 @@ builder.Services.AddScoped<IMemberDataServiceRepository, MemberDataServiceReposi
 builder.Services.AddScoped<MemberDataServiceService>();
 builder.Services.AddScoped<IServicePackageRepository, ServicePackageRepository>();
 builder.Services.AddScoped<ServicePackageService>();
+builder.Services.AddScoped<MemberImportService>();
+builder.Services.AddScoped<ServicePackageImportService>();
 builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
 builder.Services.AddScoped<InvoiceService>();
 builder.Services.AddScoped<IInvoiceItemRepository, InvoiceItemRepository>();
