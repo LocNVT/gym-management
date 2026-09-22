@@ -25,7 +25,9 @@ namespace gym_management_server.Infrastructure.Excel
             var duplicateHeaders = new List<string>();
             foreach (var cell in headerRow.CellsUsed())
             {
-                var name = cell.GetString().Trim();
+                // ExcelTemplateWriter appends " *" to a required header for the user's
+                // benefit; match by the bare name so a template's own file re-imports.
+                var name = cell.GetString().Trim().TrimEnd('*').Trim();
                 if (name.Length == 0) continue;
                 if (!positions.TryAdd(name, cell.Address.ColumnNumber))
                     duplicateHeaders.Add(name);
