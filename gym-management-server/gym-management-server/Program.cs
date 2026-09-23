@@ -11,6 +11,7 @@ using gym_management_server.Repositories.Invoices;
 using gym_management_server.Repositories.MemberDataServices;
 using gym_management_server.Repositories.Members;
 using gym_management_server.Repositories.OtpTokens;
+using gym_management_server.Repositories.Reporting;
 using gym_management_server.Repositories.ServicePackages;
 using gym_management_server.Repositories.Trainers;
 using gym_management_server.Repositories.Users;
@@ -26,6 +27,7 @@ using gym_management_server.Services.Invoices;
 using gym_management_server.Services.Import;
 using gym_management_server.Services.MemberDataServices;
 using gym_management_server.Services.Members;
+using gym_management_server.Services.Reporting;
 using gym_management_server.Services.ServicePackages;
 using gym_management_server.Services.Trainers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -55,6 +57,8 @@ builder.Services.AddScoped<IExpenseRepository, ExpenseRepository>();
 builder.Services.AddScoped<ExpenseService>();
 builder.Services.AddScoped<ITrainerRepository, TrainerRepository>();
 builder.Services.AddScoped<TrainerService>();
+builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
+builder.Services.AddScoped<DashboardService>();
 
 // Auth services
 builder.Services.AddScoped<IUserRepository, UserRepository>();
