@@ -1,0 +1,9 @@
+<div class="chart-card">
+  <h3>Giờ cao điểm (30 ngày qua)</h3>
+  <div class="loading-row" *ngIf="loading">
+    <mat-spinner diameter="32"></mat-spinner>
+  </div>
+  <div class="chart-host" *ngIf="!loading">
+    <canvas baseChart type="bar" [labels]="labels" [datasets]="datasets" [options]="options"></canvas>
+  </div>
+</div>

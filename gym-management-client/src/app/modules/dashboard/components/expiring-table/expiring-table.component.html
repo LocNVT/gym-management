@@ -1,0 +1,32 @@
+<div class="chart-card expiring-table">
+  <h3>Gói sắp hết hạn (30 ngày tới)</h3>
+
+  <div class="loading-row" *ngIf="loading">
+    <mat-spinner diameter="32"></mat-spinner>
+  </div>
+
+  <p *ngIf="!loading && rows.length === 0" class="empty-state">
+    Không có gói nào sắp hết hạn trong 30 ngày tới.
+  </p>
+
+  <table *ngIf="!loading && rows.length > 0">
+    <thead>
+      <tr>
+        <th>Hội viên</th>
+        <th>Số điện thoại</th>
+        <th>Gói</th>
+        <th>Ngày hết hạn</th>
+        <th>Còn lại</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let row of rows">
+        <td>{{ row.memberName }}</td>
+        <td><a [href]="'tel:' + row.memberPhone">{{ row.memberPhone }}</a></td>
+        <td>{{ row.packageName }}</td>
+        <td>{{ row.endDate | date:'dd/MM/yyyy' }}</td>
+        <td [class]="urgency(row.daysLeft)">{{ row.daysLeft }} ngày</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

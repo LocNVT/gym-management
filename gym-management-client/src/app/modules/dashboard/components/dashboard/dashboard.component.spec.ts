@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { DashboardComponent } from './dashboard.component';
 import { KpiCardComponent } from '../kpi-card/kpi-card.component';
@@ -25,6 +26,9 @@ describe('DashboardComponent', () => {
             declarations: [DashboardComponent, KpiCardComponent],
             imports: [MatIconModule],
             providers: [{ provide: DashboardService, useValue: stub }],
+            // Task 6 adds widget child elements (app-revenue-chart, etc.) that this
+            // spec doesn't declare — it only exercises DashboardComponent's own logic.
+            schemas: [NO_ERRORS_SCHEMA],
         });
         fixture = TestBed.createComponent(DashboardComponent);
         fixture.detectChanges();

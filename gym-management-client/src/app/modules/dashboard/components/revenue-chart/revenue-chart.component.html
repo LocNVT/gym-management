@@ -1,0 +1,10 @@
+<div class="chart-card">
+  <h3>Doanh thu và chi phí 12 tháng</h3>
+  <div class="loading-row" *ngIf="loading">
+    <mat-spinner diameter="32"></mat-spinner>
+  </div>
+  <p *ngIf="forbidden" class="muted">Chỉ quản trị viên xem được số liệu tài chính.</p>
+  <div class="chart-host" *ngIf="!loading && !forbidden">
+    <canvas baseChart type="line" [labels]="labels" [datasets]="datasets" [options]="options"></canvas>
+  </div>
+</div>
