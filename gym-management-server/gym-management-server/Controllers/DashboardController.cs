@@ -20,7 +20,17 @@ namespace gym_management_server.Controllers
         /// </summary>
         [HttpGet("kpi")]
         public async Task<IActionResult> Kpi([FromQuery] int? year = null, [FromQuery] int? month = null)
-            => Ok(await _service.GetKpiAsync(year, month, includeFinancials: IsAdmin));
+        {
+            // GymClock.MonthRangeUtc does `new DateTime(year, month, 1)` unguarded, so an
+            // out-of-range month (e.g. 13) or year would otherwise throw and surface as a 500.
+            if (month.HasValue && (month.Value < 1 || month.Value > 12))
+                return BadRequest(new { message = "Tháng không hợp lệ. Vui lòng chọn từ 1 đến 12." });
+
+            if (year.HasValue && (year.Value < 1 || year.Value > 9999))
+                return BadRequest(new { message = "Năm không hợp lệ." });
+
+            return Ok(await _service.GetKpiAsync(year, month, includeFinancials: IsAdmin));
+        }
 
         [HttpGet("revenue-trend")]
         [Authorize(Roles = "1")]

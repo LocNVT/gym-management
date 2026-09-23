@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { PeakHoursChartComponent } from './peak-hours-chart.component';
 import { DashboardService, HourSlice } from '../../../../shared/services/dashboard.service';
@@ -36,5 +36,16 @@ describe('PeakHoursChartComponent', () => {
         const data = fixture.componentInstance.datasets[0].data;
         expect(data.length).toBe(24);
         expect(data[3]).toBe(0);
+    });
+
+    it('shows a failure message instead of rendering "nobody has entered the gym" on error', () => {
+        configure({ peakHours: () => throwError(() => ({ status: 500 })) });
+
+        expect(fixture.componentInstance.error).toBeTrue();
+        expect(fixture.componentInstance.loading).toBeFalse();
+
+        const el: HTMLElement = fixture.nativeElement;
+        expect(el.textContent).toContain('Không thể tải dữ liệu giờ cao điểm. Vui lòng thử lại sau.');
+        expect(el.querySelector('canvas')).toBeNull();
     });
 });

@@ -88,5 +88,29 @@ namespace gym_management_server.Tests.Integration
             var body = await response.Content.ReadFromJsonAsync<JsonElement>();
             Assert.True(body.GetArrayLength() >= 1);
         }
+
+        [Fact]
+        public async Task An_out_of_range_month_is_rejected_with_400_instead_of_crashing()
+        {
+            // GymClock.MonthRangeUtc does `new DateTime(year, month, 1)` unguarded; month=13
+            // used to throw and surface as an unhandled 500.
+            var admin = _factory.CreateAuthenticatedClient(role: 1);
+
+            var response = await admin.GetAsync("/api/Dashboard/kpi?month=13");
+
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            var body = await response.Content.ReadFromJsonAsync<JsonElement>();
+            Assert.False(string.IsNullOrWhiteSpace(body.GetProperty("message").GetString()));
+        }
+
+        [Fact]
+        public async Task An_out_of_range_year_is_rejected_with_400_instead_of_crashing()
+        {
+            var admin = _factory.CreateAuthenticatedClient(role: 1);
+
+            var response = await admin.GetAsync("/api/Dashboard/kpi?year=0");
+
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
     }
 }

@@ -18,6 +18,7 @@ namespace gym_management_server.Repositories.Reporting
             var (prevFrom, prevTo) = GymClock.MonthRangeUtc(prevYear, prevMonth);
 
             var now = DateTime.UtcNow;
+            var (todayStartUtc, _) = GymClock.DayRangeUtc(GymClock.LocalNow);
             var expiryHorizon = now.AddDays(30);
 
             // Each of these is a scalar aggregate pushed down to SQL.
@@ -53,9 +54,13 @@ namespace gym_management_server.Repositories.Reporting
 
             var currentlyInside = await _db.CheckIns.CountAsync(c => c.CheckOutTime == null);
 
+            // Lower bound is the start of today in local terms, not the current instant: a
+            // subscription expiring today must still count as expiring, not have already
+            // rolled off the moment local wall-clock time passes the UTC-stored EndDate
+            // (which for a local-midnight EndDate happens hours before local midnight).
             var expiring = await _db.MemberDataServices
-                .CountAsync(s => s.Status == SubscriptionStatus.Active
-                              && s.EndDate >= now && s.EndDate <= expiryHorizon);
+                .CountAsync(s => !s.Member.IsDeleted && s.Status == SubscriptionStatus.Active
+                              && s.EndDate >= todayStartUtc && s.EndDate <= expiryHorizon);
 
             return new KpiOutput(
                 Year: year,
@@ -144,7 +149,7 @@ namespace gym_management_server.Repositories.Reporting
             // itself inside the Select does not translate on SQLite, so materialise into an
             // anonymous type first and build the record client-side from that.
             var rows = await _db.MemberDataServices
-                .Where(s => s.Status == SubscriptionStatus.Active)
+                .Where(s => !s.Member.IsDeleted && s.Status == SubscriptionStatus.Active)
                 .GroupBy(s => s.ServicePackage.Name)
                 .Select(g => new { PackageName = g.Key, ActiveSubscriptions = g.Count(), Revenue = g.Sum(x => x.PriceAtPurchase) })
                 .OrderByDescending(s => s.ActiveSubscriptions)
@@ -173,13 +178,20 @@ namespace gym_management_server.Repositories.Reporting
         public async Task<List<ExpiringSoon>> GetExpiringSoonAsync(int days)
         {
             var now = DateTime.UtcNow;
+            var (todayStartUtc, _) = GymClock.DayRangeUtc(GymClock.LocalNow);
             var horizon = now.AddDays(days);
 
             // EF.Functions.DateDiffDay is SQL Server-only and will not translate on SQLite, so
             // DaysLeft is computed after materialising the (at most a few hundred) rows rather
             // than projected in SQL.
+            //
+            // Lower bound is the start of today in local terms (see GetKpiAsync's ExpiringIn30Days
+            // for why): a subscription whose EndDate is today's local midnight, stored as
+            // yesterday-17:00 UTC, must still appear in the call list instead of disappearing
+            // the moment local wall-clock time passes that instant.
             var rows = await _db.MemberDataServices
-                .Where(s => s.Status == SubscriptionStatus.Active && s.EndDate >= now && s.EndDate <= horizon)
+                .Where(s => !s.Member.IsDeleted && s.Status == SubscriptionStatus.Active
+                         && s.EndDate >= todayStartUtc && s.EndDate <= horizon)
                 .OrderBy(s => s.EndDate)
                 .Select(s => new
                 {

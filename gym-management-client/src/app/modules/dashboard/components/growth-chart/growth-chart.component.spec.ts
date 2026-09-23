@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { GrowthChartComponent } from './growth-chart.component';
 import { DashboardService, GrowthPoint } from '../../../../shared/services/dashboard.service';
@@ -32,5 +32,16 @@ describe('GrowthChartComponent', () => {
         const datasets = fixture.componentInstance.datasets;
         expect(datasets.length).toBe(1);
         expect(datasets[0].data).toEqual([5, 9]);
+    });
+
+    it('shows a failure message instead of rendering an empty "zero growth" chart on error', () => {
+        configure({ memberGrowth: () => throwError(() => ({ status: 500 })) });
+
+        expect(fixture.componentInstance.error).toBeTrue();
+        expect(fixture.componentInstance.loading).toBeFalse();
+
+        const el: HTMLElement = fixture.nativeElement;
+        expect(el.textContent).toContain('Không thể tải dữ liệu tăng trưởng hội viên. Vui lòng thử lại sau.');
+        expect(el.querySelector('canvas')).toBeNull();
     });
 });

@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ExpiringTableComponent } from './expiring-table.component';
@@ -52,5 +52,16 @@ describe('ExpiringTableComponent', () => {
         expect(link).not.toBeNull();
         expect(link.getAttribute('href')).toBe('tel:0901234567');
         expect(link.textContent).toContain('0901234567');
+    });
+
+    it('shows a failure message on error and never the good-news empty state — the regression that matters most', () => {
+        configure({ expiringSoon: () => throwError(() => ({ status: 500 })) });
+        const el: HTMLElement = fixture.nativeElement;
+
+        expect(fixture.componentInstance.error).toBeTrue();
+        expect(el.textContent).toContain('Không thể tải danh sách gói sắp hết hạn. Vui lòng thử lại sau.');
+        // A failed request must never be mistaken for "there is nobody to call".
+        expect(el.textContent).not.toContain('Không có gói nào sắp hết hạn trong 30 ngày tới.');
+        expect(el.querySelector('table')).toBeNull();
     });
 });

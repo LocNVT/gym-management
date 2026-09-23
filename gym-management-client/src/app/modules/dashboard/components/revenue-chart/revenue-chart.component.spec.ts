@@ -41,4 +41,17 @@ describe('RevenueChartComponent', () => {
         expect(fixture.componentInstance.forbidden).toBeTrue();
         expect(fixture.componentInstance.loading).toBeFalse();
     });
+
+    it('shows a failure message (not the staff-only message) on a genuine server error, and hides the chart', () => {
+        configure({ revenueTrend: () => throwError(() => ({ status: 500 })) });
+
+        expect(fixture.componentInstance.error).toBeTrue();
+        expect(fixture.componentInstance.forbidden).toBeFalse();
+        expect(fixture.componentInstance.loading).toBeFalse();
+
+        const el: HTMLElement = fixture.nativeElement;
+        expect(el.textContent).toContain('Không thể tải dữ liệu doanh thu và chi phí. Vui lòng thử lại sau.');
+        expect(el.textContent).not.toContain('Chỉ quản trị viên xem được số liệu tài chính.');
+        expect(el.querySelector('canvas')).toBeNull();
+    });
 });

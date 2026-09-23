@@ -4,7 +4,8 @@
     <mat-spinner diameter="32"></mat-spinner>
   </div>
   <p *ngIf="forbidden" class="muted">Chỉ quản trị viên xem được số liệu tài chính.</p>
-  <div class="chart-host" *ngIf="!loading && !forbidden">
+  <p *ngIf="error" class="error-state">Không thể tải dữ liệu doanh thu và chi phí. Vui lòng thử lại sau.</p>
+  <div class="chart-host" *ngIf="!loading && !forbidden && !error">
     <canvas baseChart type="line" [labels]="labels" [datasets]="datasets" [options]="options"></canvas>
   </div>
 </div>

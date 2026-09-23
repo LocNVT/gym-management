@@ -3,7 +3,8 @@
   <div class="loading-row" *ngIf="loading">
     <mat-spinner diameter="32"></mat-spinner>
   </div>
-  <div class="chart-host" *ngIf="!loading">
+  <p *ngIf="error" class="error-state">Không thể tải dữ liệu tăng trưởng hội viên. Vui lòng thử lại sau.</p>
+  <div class="chart-host" *ngIf="!loading && !error">
     <canvas baseChart type="bar" [labels]="labels" [datasets]="datasets" [options]="options"></canvas>
   </div>
 </div>

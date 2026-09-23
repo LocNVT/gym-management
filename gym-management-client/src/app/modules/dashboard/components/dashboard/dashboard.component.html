@@ -2,9 +2,9 @@
 
 <div class="kpi-grid" *ngIf="kpi as k">
   <app-kpi-card *ngIf="showFinancials" label="Doanh thu tháng này" icon="payments"
-    [value]="k.revenue" [previous]="k.previousRevenue" format="currency"></app-kpi-card>
+    [value]="k.revenue" [previous]="k.previousRevenue" format="currency" [isCurrentMonth]="isCurrentMonth"></app-kpi-card>
   <app-kpi-card *ngIf="showFinancials" label="Chi phí tháng này" icon="receipt_long"
-    [value]="k.expense" [previous]="k.previousExpense" format="currency" [higherIsBetter]="false"></app-kpi-card>
+    [value]="k.expense" [previous]="k.previousExpense" format="currency" [higherIsBetter]="false" [isCurrentMonth]="isCurrentMonth"></app-kpi-card>
   <app-kpi-card *ngIf="showFinancials" label="Lợi nhuận" icon="savings"
     [value]="k.profit" format="currency"></app-kpi-card>
   <app-kpi-card *ngIf="showFinancials" label="Công nợ chưa thu" icon="pending_actions"
@@ -12,7 +12,7 @@
 
   <app-kpi-card label="Hội viên đang hoạt động" icon="people" [value]="k.activeMembers"></app-kpi-card>
   <app-kpi-card label="Hội viên mới" icon="person_add"
-    [value]="k.newMembers" [previous]="k.previousNewMembers"></app-kpi-card>
+    [value]="k.newMembers" [previous]="k.previousNewMembers" [isCurrentMonth]="isCurrentMonth"></app-kpi-card>
   <app-kpi-card label="Đang trong phòng" icon="directions_run" [value]="k.currentlyInside"></app-kpi-card>
   <app-kpi-card label="Sắp hết hạn (30 ngày)" icon="event_busy" [value]="k.expiringIn30Days"></app-kpi-card>
 </div>
@@ -26,6 +26,10 @@
 <div class="loading-row" *ngIf="loadingKpi">
   <mat-spinner diameter="32"></mat-spinner>
 </div>
+
+<p *ngIf="!loadingKpi && kpiError" class="error-state">
+  Không thể tải số liệu tổng quan. Vui lòng thử lại sau.
+</p>
 
 <div class="widget-grid">
   <app-revenue-chart class="wide"></app-revenue-chart>

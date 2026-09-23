@@ -16,9 +16,9 @@ namespace gym_management_server.Tests.Integration
         private readonly SqliteDbFixture _fixture;
         public DashboardChartQueryTests(SqliteDbFixture fixture) => _fixture = fixture;
 
-        private static Member AddMember(GymManagementContext db, string name, string phone)
+        private static Member AddMember(GymManagementContext db, string name, string phone, bool isDeleted = false)
         {
-            var member = new Member { Id = Guid.NewGuid(), FullName = name, PhoneNumber = phone };
+            var member = new Member { Id = Guid.NewGuid(), FullName = name, PhoneNumber = phone, IsDeleted = isDeleted };
             db.Members.Add(member);
             return member;
         }
@@ -79,6 +79,26 @@ namespace gym_management_server.Tests.Integration
         }
 
         [Fact]
+        public async Task Package_distribution_excludes_subscriptions_of_soft_deleted_members()
+        {
+            using var db = _fixture.NewContext();
+            var deleted = AddMember(db, "Đã xóa", "0900000202", isDeleted: true);
+            var package = new ServicePackage { Id = Guid.NewGuid(), Name = "Gói riêng người đã xóa", Price = 500_000m, DurationDays = 30 };
+            db.ServicePackages.Add(package);
+            db.MemberDataServices.Add(new MemberDataService
+            {
+                Id = Guid.NewGuid(), MemberId = deleted.Id, ServicePackageId = package.Id,
+                PriceAtPurchase = 500_000m, StartDate = DateTime.UtcNow.AddDays(-5), EndDate = DateTime.UtcNow.AddDays(25),
+                Status = SubscriptionStatus.Active,
+            });
+            await db.SaveChangesAsync();
+
+            var slices = await new DashboardRepository(db).GetPackageDistributionAsync();
+
+            Assert.DoesNotContain(slices, s => s.PackageName == "Gói riêng người đã xóa");
+        }
+
+        [Fact]
         public async Task Peak_hours_always_returns_all_24_hours_bucketed_in_local_time()
         {
             using var db = _fixture.NewContext();
@@ -119,6 +139,56 @@ namespace gym_management_server.Tests.Integration
             Assert.Equal("0900000221", rows[0].MemberPhone);
             Assert.Equal("Gói 3 tháng", rows[0].PackageName);
             Assert.InRange(rows[0].DaysLeft, 2, 3);
+        }
+
+        [Fact]
+        public async Task Expiring_soon_excludes_subscriptions_of_soft_deleted_members()
+        {
+            using var db = _fixture.NewContext();
+            var deleted = AddMember(db, "Đã xóa nhưng gói còn hoạt động", "0900000223", isDeleted: true);
+            var package = new ServicePackage { Id = Guid.NewGuid(), Name = "Gói 3 tháng", Price = 1_500_000m, DurationDays = 90 };
+            db.ServicePackages.Add(package);
+            db.MemberDataServices.Add(new MemberDataService
+            {
+                Id = Guid.NewGuid(), MemberId = deleted.Id, ServicePackageId = package.Id,
+                StartDate = DateTime.UtcNow.AddDays(-87), EndDate = DateTime.UtcNow.AddDays(3),
+                Status = SubscriptionStatus.Active,
+            });
+            await db.SaveChangesAsync();
+
+            var rows = await new DashboardRepository(db).GetExpiringSoonAsync(30);
+
+            // Otherwise staff would ring a member who, per the members grid, no longer exists.
+            Assert.Empty(rows);
+        }
+
+        [Fact]
+        public async Task Expiring_soon_includes_a_subscription_ending_today_and_excludes_one_that_ended_yesterday()
+        {
+            using var db = _fixture.NewContext();
+            var todayLocal = GymClock.LocalNow.Date;
+            var member = AddMember(db, "Ranh giới hôm nay", "0900000224");
+            var package = new ServicePackage { Id = Guid.NewGuid(), Name = "Gói 1 tháng", Price = 500_000m, DurationDays = 30 };
+            db.ServicePackages.Add(package);
+
+            db.MemberDataServices.Add(new MemberDataService
+            {
+                Id = Guid.NewGuid(), MemberId = member.Id, ServicePackageId = package.Id,
+                StartDate = GymClock.ToUtc(todayLocal.AddDays(-29)), EndDate = GymClock.ToUtc(todayLocal),
+                Status = SubscriptionStatus.Active,
+            });
+            db.MemberDataServices.Add(new MemberDataService
+            {
+                Id = Guid.NewGuid(), MemberId = member.Id, ServicePackageId = package.Id,
+                StartDate = GymClock.ToUtc(todayLocal.AddDays(-30)), EndDate = GymClock.ToUtc(todayLocal.AddDays(-1)),
+                Status = SubscriptionStatus.Active,
+            });
+            await db.SaveChangesAsync();
+
+            var rows = await new DashboardRepository(db).GetExpiringSoonAsync(30);
+
+            Assert.Single(rows);
+            Assert.Equal(todayLocal, GymClock.ToLocal(rows[0].EndDate).Date);
         }
     }
 }

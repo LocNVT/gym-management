@@ -57,6 +57,45 @@ describe('KpiCardComponent', () => {
         expect(fixture.componentInstance.sentiment).toBe('good');
     });
 
+    it('suppresses the month-over-month percentage while the month is still in progress', () => {
+        configure();
+        fixture.componentInstance.value = 1_000_000;
+        fixture.componentInstance.previous = 10_000_000;
+        fixture.componentInstance.isCurrentMonth = true;
+        fixture.detectChanges();
+
+        // Three days of revenue against a full previous month would otherwise read as
+        // roughly "-91% so với tháng trước" — misleading every month, so it must not render.
+        expect(fixture.componentInstance.changePercent).toBeNull();
+        const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+        expect(text).not.toContain('so với tháng trước');
+        expect(text).toContain('Tháng đang diễn ra');
+    });
+
+    it('shows the normal percentage once the month is no longer in progress', () => {
+        configure();
+        fixture.componentInstance.value = 12_000_000;
+        fixture.componentInstance.previous = 10_000_000;
+        fixture.componentInstance.isCurrentMonth = false;
+        fixture.detectChanges();
+
+        expect(fixture.componentInstance.changePercent).toBe(20);
+        const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+        expect(text).toContain('so với tháng trước');
+        expect(text).not.toContain('Tháng đang diễn ra');
+    });
+
+    it('does not show the in-progress note on a card with no previous-month comparison at all', () => {
+        configure();
+        fixture.componentInstance.value = 120;
+        fixture.componentInstance.previous = null;
+        fixture.componentInstance.isCurrentMonth = true;
+        fixture.detectChanges();
+
+        const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+        expect(text).not.toContain('Tháng đang diễn ra');
+    });
+
     it('renders currency values Vietnamese-grouped ("." for thousands) rather than American-grouped', () => {
         // Registering the vi locale and forcing LOCALE_ID here mirrors what app.module.ts
         // now does app-wide; this asserts the DecimalPipe actually honours it.

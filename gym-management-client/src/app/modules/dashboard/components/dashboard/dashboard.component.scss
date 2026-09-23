@@ -6,6 +6,7 @@
 .loading-row {
   display: flex; justify-content: center; padding: 24px;
 }
+.error-state { color: #c62828; font-size: 14px; }
 .widget-grid {
   display: grid; gap: 16px; margin-top: 20px;
   grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
@@ -17,6 +18,7 @@
   h3 { margin: 0 0 12px; font-size: 15px; font-weight: 600; }
   .chart-host { height: 300px; }
   .muted { color: rgba(0, 0, 0, 0.5); font-size: 13px; }
+  .error-state { color: #c62828; font-size: 13px; }
   // The widget components (revenue/growth/peak-hours/expiring-table) render this
   // markup inside their own view encapsulation, so the loading-spinner layout has
   // to be reachable from here via ::ng-deep too, not just .chart-card itself.

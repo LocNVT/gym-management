@@ -11,6 +11,8 @@ export class PeakHoursChartComponent implements OnInit {
     labels: string[] = [];
     datasets: ChartDataset<'bar'>[] = [];
     loading = true;
+    /** A failed request must never render as "nobody has entered the gym in 30 days". */
+    error = false;
 
     readonly options: ChartConfiguration<'bar'>['options'] = {
         responsive: true,
@@ -32,6 +34,7 @@ export class PeakHoursChartComponent implements OnInit {
             },
             error: () => {
                 this.loading = false;
+                this.error = true;
             },
         });
     }

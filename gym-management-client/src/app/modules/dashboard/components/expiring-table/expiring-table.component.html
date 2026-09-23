@@ -5,11 +5,15 @@
     <mat-spinner diameter="32"></mat-spinner>
   </div>
 
-  <p *ngIf="!loading && rows.length === 0" class="empty-state">
+  <p *ngIf="!loading && error" class="error-state">
+    Không thể tải danh sách gói sắp hết hạn. Vui lòng thử lại sau.
+  </p>
+
+  <p *ngIf="!loading && !error && rows.length === 0" class="empty-state">
     Không có gói nào sắp hết hạn trong 30 ngày tới.
   </p>
 
-  <table *ngIf="!loading && rows.length > 0">
+  <table *ngIf="!loading && !error && rows.length > 0">
     <thead>
       <tr>
         <th>Hội viên</th>

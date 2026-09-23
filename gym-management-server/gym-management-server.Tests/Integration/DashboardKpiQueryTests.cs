@@ -196,5 +196,60 @@ namespace gym_management_server.Tests.Integration
 
             Assert.Equal(1, kpi.ExpiringIn30Days);
         }
+
+        [Fact]
+        public async Task Expiring_in_30_days_excludes_soft_deleted_members()
+        {
+            using var db = _fixture.NewContext();
+            var deleted = AddMember(db, "Đã xóa nhưng còn gói", "0900000132");
+            deleted.IsDeleted = true;
+            var package = new ServicePackage { Id = Guid.NewGuid(), Name = "Gói 3 tháng", Price = 1_000_000m, DurationDays = 90 };
+            db.ServicePackages.Add(package);
+            db.MemberDataServices.Add(new MemberDataService
+            {
+                Id = Guid.NewGuid(), MemberId = deleted.Id, ServicePackageId = package.Id,
+                StartDate = DateTime.UtcNow.AddDays(-80), EndDate = DateTime.UtcNow.AddDays(10),
+                Status = SubscriptionStatus.Active,
+            });
+            await db.SaveChangesAsync();
+
+            var kpi = await new DashboardRepository(db).GetKpiAsync(2026, 9);
+
+            // Without the fix a soft-deleted member's still-active subscription would be
+            // counted here while `activeMembers`/the members grid already treat them as gone.
+            Assert.Equal(0, kpi.ExpiringIn30Days);
+        }
+
+        [Fact]
+        public async Task Expiring_in_30_days_includes_a_subscription_ending_today_and_excludes_one_that_ended_yesterday()
+        {
+            using var db = _fixture.NewContext();
+            var todayLocal = GymClock.LocalNow.Date;
+            var member = AddMember(db, "Ranh giới hôm nay", "0900000133");
+            var package = new ServicePackage { Id = Guid.NewGuid(), Name = "Gói 1 tháng", Price = 500_000m, DurationDays = 30 };
+            db.ServicePackages.Add(package);
+
+            // Stored as local-midnight-of-today converted to UTC: at any time after midnight
+            // local, this instant is already in the past, but it must still count as "expiring
+            // today" rather than vanish.
+            db.MemberDataServices.Add(new MemberDataService
+            {
+                Id = Guid.NewGuid(), MemberId = member.Id, ServicePackageId = package.Id,
+                StartDate = GymClock.ToUtc(todayLocal.AddDays(-29)), EndDate = GymClock.ToUtc(todayLocal),
+                Status = SubscriptionStatus.Active,
+            });
+            // Ended at local midnight yesterday: genuinely expired, must not count.
+            db.MemberDataServices.Add(new MemberDataService
+            {
+                Id = Guid.NewGuid(), MemberId = member.Id, ServicePackageId = package.Id,
+                StartDate = GymClock.ToUtc(todayLocal.AddDays(-30)), EndDate = GymClock.ToUtc(todayLocal.AddDays(-1)),
+                Status = SubscriptionStatus.Active,
+            });
+            await db.SaveChangesAsync();
+
+            var kpi = await new DashboardRepository(db).GetKpiAsync(todayLocal.Year, todayLocal.Month);
+
+            Assert.Equal(1, kpi.ExpiringIn30Days);
+        }
     }
 }

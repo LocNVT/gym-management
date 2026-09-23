@@ -13,6 +13,8 @@ export class RevenueChartComponent implements OnInit {
     loading = true;
     /** Staff are refused this endpoint by design; say so rather than showing a failure. */
     forbidden = false;
+    /** A genuine fault (500, network, timeout) — distinct from the expected staff 403 above. */
+    error = false;
 
     readonly options: ChartConfiguration<'line'>['options'] = {
         responsive: true,
@@ -39,8 +41,12 @@ export class RevenueChartComponent implements OnInit {
                 this.loading = false;
             },
             error: (err) => {
-                this.forbidden = err.status === 403;
                 this.loading = false;
+                if (err.status === 403) {
+                    this.forbidden = true;
+                    return;
+                }
+                this.error = true;
             },
         });
     }

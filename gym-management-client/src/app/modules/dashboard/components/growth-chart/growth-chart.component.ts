@@ -11,6 +11,8 @@ export class GrowthChartComponent implements OnInit {
     labels: string[] = [];
     datasets: ChartDataset<'bar'>[] = [];
     loading = true;
+    /** A failed request must never render as "zero new members every month". */
+    error = false;
 
     readonly options: ChartConfiguration<'bar'>['options'] = {
         responsive: true,
@@ -32,6 +34,7 @@ export class GrowthChartComponent implements OnInit {
             },
             error: () => {
                 this.loading = false;
+                this.error = true;
             },
         });
     }

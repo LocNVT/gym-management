@@ -12,5 +12,6 @@
       <mat-icon>{{ direction === 'up' ? 'trending_up' : direction === 'down' ? 'trending_down' : 'trending_flat' }}</mat-icon>
       {{ changePercent > 0 ? '+' : '' }}{{ changePercent }}% so với tháng trước
     </span>
+    <span class="kpi-note" *ngIf="showsInProgressNote">Tháng đang diễn ra — chưa đủ dữ liệu để so sánh.</span>
   </div>
 </div>

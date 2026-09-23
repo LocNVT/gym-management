@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { Component } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { DashboardComponent } from './dashboard.component';
@@ -31,10 +31,7 @@ describe('DashboardComponent', () => {
         currentlyInside: 7, expiringIn30Days: 9,
     };
 
-    function configure(value: Kpi) {
-        const stub: Partial<DashboardService> = {
-            kpi: () => of(value),
-        };
+    function configureWithStub(stub: Partial<DashboardService>) {
         TestBed.configureTestingModule({
             declarations: [
                 DashboardComponent,
@@ -51,6 +48,16 @@ describe('DashboardComponent', () => {
         fixture.detectChanges();
     }
 
+    function configure(value: Kpi) {
+        configureWithStub({ kpi: () => of(value) });
+    }
+
+    /** Matches DashboardComponent.isCurrentMonth's own Vietnam-fixed-offset math. */
+    function vnNow(): { year: number; month: number } {
+        const d = new Date(Date.now() + 7 * 60 * 60 * 1000);
+        return { year: d.getUTCFullYear(), month: d.getUTCMonth() + 1 };
+    }
+
     it('loads the KPI row on init', () => {
         configure(kpi);
         expect(fixture.componentInstance.kpi?.activeMembers).toBe(120);
@@ -59,5 +66,29 @@ describe('DashboardComponent', () => {
     it('hides the financial cards when the server blanked them', () => {
         configure({ ...kpi, revenue: null, profit: null, expense: null, unpaidTotal: null });
         expect(fixture.componentInstance.showFinancials).toBeFalse();
+    });
+
+    it('shows a failure message instead of silently dropping the whole KPI row when the request fails', () => {
+        configureWithStub({ kpi: () => throwError(() => ({ status: 500 })) });
+
+        expect(fixture.componentInstance.kpi).toBeNull();
+        expect(fixture.componentInstance.kpiError).toBeTrue();
+        expect(fixture.componentInstance.loadingKpi).toBeFalse();
+
+        const el: HTMLElement = fixture.nativeElement;
+        expect(el.textContent).toContain('Không thể tải số liệu tổng quan. Vui lòng thử lại sau.');
+    });
+
+    it('flags the KPI row as the current month so month-over-month cards suppress their comparison', () => {
+        const { year, month } = vnNow();
+        configure({ ...kpi, year, month });
+        expect(fixture.componentInstance.isCurrentMonth).toBeTrue();
+    });
+
+    it('does not flag a past month as current', () => {
+        const { year, month } = vnNow();
+        const [prevYear, prevMonth] = month === 1 ? [year - 1, 12] : [year, month - 1];
+        configure({ ...kpi, year: prevYear, month: prevMonth });
+        expect(fixture.componentInstance.isCurrentMonth).toBeFalse();
     });
 });
