@@ -12,8 +12,22 @@ namespace gym_management_server.Infrastructure.Time
     {
         public const int OffsetHours = 7;
 
-        public static DateTime ToLocal(DateTime utc) => utc.AddHours(OffsetHours);
-        public static DateTime ToUtc(DateTime local) => local.AddHours(-OffsetHours);
+        /// <summary>
+        /// Converts UTC to local wall-clock time (Vietnam UTC+7).
+        /// Returns <see cref="DateTimeKind.Unspecified"/> because the result has no correct kind in .NET:
+        /// not <see cref="DateTimeKind.Utc"/> (it's not UTC), and not <see cref="DateTimeKind.Local"/>
+        /// (which means the server's zone, a deployment detail). <see cref="DateTimeKind.Unspecified"/>
+        /// also prevents System.Text.Json from appending a 'Z' and causing a client-side double conversion.
+        /// </summary>
+        public static DateTime ToLocal(DateTime utc) =>
+            DateTime.SpecifyKind(utc.AddHours(OffsetHours), DateTimeKind.Unspecified);
+
+        /// <summary>
+        /// Converts local wall-clock time (Vietnam UTC+7) to UTC.
+        /// Returns <see cref="DateTimeKind.Utc"/> because the result is a genuine UTC instant.
+        /// </summary>
+        public static DateTime ToUtc(DateTime local) =>
+            DateTime.SpecifyKind(local.AddHours(-OffsetHours), DateTimeKind.Utc);
 
         public static DateTime LocalNow => ToLocal(DateTime.UtcNow);
 

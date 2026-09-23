@@ -63,5 +63,70 @@ namespace gym_management_server.Tests.Unit
             Assert.Equal((now.Year, now.Month), months[^1]);
             Assert.True(months[0].Year < months[^1].Year || months[0].Month < months[^1].Month);
         }
+
+        [Fact]
+        public void LastMonths_of_1_returns_the_current_local_month()
+        {
+            var months = GymClock.LastMonths(1);
+            var now = GymClock.LocalNow;
+
+            Assert.Single(months);
+            Assert.Equal((now.Year, now.Month), months[0]);
+        }
+
+        [Fact]
+        public void LastMonths_crossing_year_boundary_produces_correct_sequence()
+        {
+            // Test that we get 13 consecutive months ending with current month,
+            // even if it requires crossing January.
+            var months = GymClock.LastMonths(13);
+            var now = GymClock.LocalNow;
+
+            Assert.Equal(13, months.Count);
+            Assert.Equal((now.Year, now.Month), months[^1]);
+
+            // Verify continuity: each month should be the previous month of the next
+            for (int i = 1; i < months.Count; i++)
+            {
+                var (prevYear, prevMonth) = months[i - 1];
+                var (curYear, curMonth) = months[i];
+                var next = GymClock.PreviousMonth(curYear, curMonth) == (prevYear, prevMonth);
+                Assert.True(next, $"Gap between months at index {i-1}");
+            }
+        }
+
+        [Fact]
+        public void LastMonths_of_0_returns_empty_list()
+        {
+            var months = GymClock.LastMonths(0);
+            Assert.Empty(months);
+        }
+
+        [Fact]
+        public void ToLocal_returns_Unspecified_kind()
+        {
+            var utc = new DateTime(2026, 9, 22, 10, 0, 0, DateTimeKind.Utc);
+            var local = GymClock.ToLocal(utc);
+
+            Assert.Equal(DateTimeKind.Unspecified, local.Kind);
+        }
+
+        [Fact]
+        public void ToUtc_returns_Utc_kind()
+        {
+            var local = new DateTime(2026, 9, 22, 17, 0, 0, DateTimeKind.Unspecified);
+            var utc = GymClock.ToUtc(local);
+
+            Assert.Equal(DateTimeKind.Utc, utc.Kind);
+        }
+
+        [Fact]
+        public void LocalNow_is_not_Utc_kind()
+        {
+            var now = GymClock.LocalNow;
+
+            Assert.NotEqual(DateTimeKind.Utc, now.Kind);
+            Assert.Equal(DateTimeKind.Unspecified, now.Kind);
+        }
     }
 }
