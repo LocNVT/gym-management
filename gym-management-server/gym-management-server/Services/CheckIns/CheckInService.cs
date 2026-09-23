@@ -35,7 +35,7 @@ namespace gym_management_server.Services.CheckIns
 
         public async Task<CheckInOutput> CreateAsync(CheckInCreateInput input)
         {
-            var checkIn = new CheckIn(Guid.NewGuid(), input.MemberId, DateTime.Now, input.Method, input.Notes);
+            var checkIn = new CheckIn(Guid.NewGuid(), input.MemberId, DateTime.UtcNow, input.Method, input.Notes);
             await _checkInRepository.AddAsync(checkIn);
             return _mapObjects.MapObjects<CheckIn, CheckInOutput>(checkIn);
         }
