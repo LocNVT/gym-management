@@ -46,7 +46,7 @@ export class SidebarComponent {
     {
       title: 'Điểm danh',
       items: [
-        { label: 'Tổng quan', icon: 'dashboard', route: '/attendance-dashboard' },
+        { label: 'Đang trong phòng', icon: 'dashboard', route: '/attendance-dashboard' },
         { label: 'Vân tay', icon: 'fingerprint', route: '/fingerprint-attendance' },
         { label: 'Thiết bị', icon: 'devices', route: '/attendance-devices' },
       ]

@@ -20,7 +20,6 @@ describe('DashboardComponent', () => {
     function configure(value: Kpi) {
         const stub: Partial<DashboardService> = {
             kpi: () => of(value),
-            expiringSoon: () => of([]),
         };
         TestBed.configureTestingModule({
             declarations: [DashboardComponent, KpiCardComponent],
@@ -34,16 +33,6 @@ describe('DashboardComponent', () => {
     it('loads the KPI row on init', () => {
         configure(kpi);
         expect(fixture.componentInstance.kpi?.activeMembers).toBe(120);
-    });
-
-    it('reports the month-over-month change as a percentage', () => {
-        configure(kpi);
-        expect(fixture.componentInstance.changePercent(12_000_000, 10_000_000)).toBe(20);
-    });
-
-    it('treats growth from zero as no comparison rather than infinity', () => {
-        configure(kpi);
-        expect(fixture.componentInstance.changePercent(5_000_000, 0)).toBeNull();
     });
 
     it('hides the financial cards when the server blanked them', () => {

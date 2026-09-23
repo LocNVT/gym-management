@@ -12,6 +12,8 @@ export class KpiCardComponent {
     @Input() previous: number | null = null;
     @Input() format: 'currency' | 'number' = 'number';
     @Input() icon = 'insights';
+    /** Whether a rise in the value is good news. False for cost-type metrics (e.g. expense). */
+    @Input() higherIsBetter = true;
 
     /** null means "no meaningful comparison", not "no change". */
     get changePercent(): number | null {
@@ -19,9 +21,19 @@ export class KpiCardComponent {
         return Math.round(((this.value - this.previous) / this.previous) * 100);
     }
 
+    /** Which way the number actually moved — the arrow always follows this. */
     get direction(): 'up' | 'down' | 'flat' {
         const change = this.changePercent;
         if (change === null || change === 0) return 'flat';
         return change > 0 ? 'up' : 'down';
+    }
+
+    /** Whether the movement is good, bad, or neutral news — the colour follows this, not `direction`. */
+    get sentiment(): 'good' | 'bad' | 'flat' {
+        const change = this.changePercent;
+        if (change === null || change === 0) return 'flat';
+        const rose = change > 0;
+        const isGood = this.higherIsBetter ? rose : !rose;
+        return isGood ? 'good' : 'bad';
     }
 }

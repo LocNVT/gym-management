@@ -4,7 +4,7 @@
   <app-kpi-card *ngIf="showFinancials" label="Doanh thu tháng này" icon="payments"
     [value]="k.revenue" [previous]="k.previousRevenue" format="currency"></app-kpi-card>
   <app-kpi-card *ngIf="showFinancials" label="Chi phí tháng này" icon="receipt_long"
-    [value]="k.expense" [previous]="k.previousExpense" format="currency"></app-kpi-card>
+    [value]="k.expense" [previous]="k.previousExpense" format="currency" [higherIsBetter]="false"></app-kpi-card>
   <app-kpi-card *ngIf="showFinancials" label="Lợi nhuận" icon="savings"
     [value]="k.profit" format="currency"></app-kpi-card>
   <app-kpi-card *ngIf="showFinancials" label="Công nợ chưa thu" icon="pending_actions"

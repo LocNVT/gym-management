@@ -8,7 +8,7 @@
       </ng-container>
       <ng-template #blank>—</ng-template>
     </span>
-    <span class="kpi-change" *ngIf="changePercent !== null" [class]="direction">
+    <span class="kpi-change" *ngIf="changePercent !== null" [class]="sentiment">
       <mat-icon>{{ direction === 'up' ? 'trending_up' : direction === 'down' ? 'trending_down' : 'trending_flat' }}</mat-icon>
       {{ changePercent > 0 ? '+' : '' }}{{ changePercent }}% so với tháng trước
     </span>

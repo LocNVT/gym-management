@@ -1,7 +1,13 @@
-import { NgModule } from '@angular/core';
+import { LOCALE_ID, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { registerLocaleData } from '@angular/common';
+import localeVi from '@angular/common/locales/vi';
+
+// Vietnamese number/date formatting (grouping ".", decimal ",") for the whole app —
+// otherwise Angular's built-in pipes fall back to en-US and "12.000.000" reads as "12,000,000".
+registerLocaleData(localeVi);
 
 // Angular Material imports (for layout shell)
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -44,7 +50,8 @@ import { AuthInterceptor } from './shared/interceptors/auth.interceptor';
     MatMenuModule
   ],
   providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+    { provide: LOCALE_ID, useValue: 'vi-VN' }
   ],
   bootstrap: [AppComponent]
 })
