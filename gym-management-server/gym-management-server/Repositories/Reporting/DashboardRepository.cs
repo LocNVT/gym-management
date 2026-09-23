@@ -32,6 +32,9 @@ namespace gym_management_server.Repositories.Reporting
                 .Where(e => e.ExpenseDate >= prevFrom && e.ExpenseDate < prevTo)
                 .SumAsync(e => (decimal?)e.Amount) ?? 0m;
 
+            // Point-in-time balance, not a monthly flow: every Pending invoice regardless of
+            // date, so this is deliberately not bounded by `from`/`to`. See the XML doc on
+            // KpiOutput.UnpaidTotal — do not "fix" this by adding a date filter.
             var unpaid = await _db.Invoices
                 .Where(i => i.Status == InvoiceStatus.Pending)
                 .SumAsync(i => (decimal?)i.TotalAmount) ?? 0m;
@@ -39,6 +42,9 @@ namespace gym_management_server.Repositories.Reporting
             var activeMembers = await _db.Members
                 .CountAsync(m => !m.IsDeleted && m.Status == MemberStatus.Active);
 
+            // !IsDeleted here too, though the brief's prose didn't spell it out: a soft-deleted
+            // registrant isn't a net-new member any more than a soft-deleted member is "active".
+            // Keeps NewMembers/PreviousNewMembers consistent with ActiveMembers above.
             var newMembers = await _db.Members
                 .CountAsync(m => !m.IsDeleted && m.RegistrationDate >= from && m.RegistrationDate < to);
 

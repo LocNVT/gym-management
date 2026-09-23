@@ -5,6 +5,13 @@ namespace gym_management_server.DTOs.Dashboard
     /// so the service layer can blank them out for roles that should not see money — the
     /// repository always populates every field; masking happens later, not here.
     /// </summary>
+    /// <param name="UnpaidTotal">
+    /// Outstanding debt as of now: the sum of every <c>Pending</c> invoice, regardless of when it
+    /// was raised. This is a point-in-time balance ("how much is owed to us right now"), not a
+    /// monthly flow like <paramref name="Revenue"/> or <paramref name="Expense"/> — it is
+    /// deliberately NOT bounded by <paramref name="Year"/>/<paramref name="Month"/>, so it reads
+    /// the same for every month queried. Do not "fix" that by scoping it to the month.
+    /// </param>
     public record KpiOutput(
         int Year,
         int Month,

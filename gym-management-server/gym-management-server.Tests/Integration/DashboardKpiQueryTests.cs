@@ -61,6 +61,21 @@ namespace gym_management_server.Tests.Integration
         }
 
         [Fact]
+        public async Task Unpaid_total_is_a_point_in_time_balance_not_scoped_to_the_queried_month()
+        {
+            using var db = _fixture.NewContext();
+            // Pending, but dated well outside September: a month-scoped implementation would
+            // drop this and still pass Revenue_counts_paid_invoices_only above, since that test's
+            // only Pending invoice happens to fall inside the queried month.
+            Invoice(db, 6_000_000m, InvoiceStatus.Pending, new DateTime(2026, 1, 5));
+            await db.SaveChangesAsync();
+
+            var kpi = await new DashboardRepository(db).GetKpiAsync(2026, 9);
+
+            Assert.Equal(6_000_000m, kpi.UnpaidTotal);
+        }
+
+        [Fact]
         public async Task An_invoice_late_on_the_last_local_day_of_the_month_belongs_to_that_month()
         {
             using var db = _fixture.NewContext();
@@ -125,6 +140,20 @@ namespace gym_management_server.Tests.Integration
 
             Assert.Equal(1, kpi.NewMembers);
             Assert.Equal(1, kpi.PreviousNewMembers);
+        }
+
+        [Fact]
+        public async Task New_members_excludes_soft_deleted_registrations()
+        {
+            using var db = _fixture.NewContext();
+            var deleted = AddMember(db, "Đăng ký rồi xóa", "0900000113",
+                registered: GymClock.ToUtc(new DateTime(2026, 9, 2)));
+            deleted.IsDeleted = true;
+            await db.SaveChangesAsync();
+
+            var kpi = await new DashboardRepository(db).GetKpiAsync(2026, 9);
+
+            Assert.Equal(0, kpi.NewMembers);
         }
 
         [Fact]
