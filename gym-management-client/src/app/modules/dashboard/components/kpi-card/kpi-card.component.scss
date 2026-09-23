@@ -1,0 +1,16 @@
+.kpi-card {
+  display: flex; gap: 14px; align-items: flex-start;
+  padding: 18px; border-radius: 12px; background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+.kpi-icon { color: #5c6bc0; }
+.kpi-body { display: flex; flex-direction: column; gap: 4px; }
+.kpi-label { font-size: 13px; color: rgba(0, 0, 0, 0.6); }
+.kpi-value { font-size: 24px; font-weight: 600; }
+.kpi-change {
+  display: flex; align-items: center; gap: 4px; font-size: 12px;
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+  &.up { color: #2e7d32; }
+  &.down { color: #c62828; }
+  &.flat { color: rgba(0, 0, 0, 0.5); }
+}

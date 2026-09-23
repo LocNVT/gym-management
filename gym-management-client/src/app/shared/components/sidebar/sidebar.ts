@@ -20,6 +20,12 @@ export interface MenuGroup {
 export class SidebarComponent {
   menuGroups: MenuGroup[] = [
     {
+      title: 'Tổng quan',
+      items: [
+        { label: 'Bảng điều khiển', icon: 'space_dashboard', route: '/dashboard' },
+      ]
+    },
+    {
       title: 'Quản lý',
       items: [
         { label: 'Thành viên', icon: 'people', route: '/members' },

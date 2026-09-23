@@ -7,7 +7,12 @@ const routes: Routes = [
     path: 'login',
     loadChildren: () => import('./modules/auth/auth.module').then(m => m.AuthModule)
   },
-  { path: '', redirectTo: '/members', pathMatch: 'full' },
+  { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
+  {
+    path: 'dashboard',
+    loadChildren: () => import('./modules/dashboard/dashboard.module').then(m => m.DashboardModule),
+    canActivate: [AuthGuard]
+  },
   {
     path: 'members',
     loadChildren: () => import('./modules/members/members.module').then(m => m.MembersModule),
@@ -63,7 +68,7 @@ const routes: Routes = [
     loadChildren: () => import('./modules/attendance-devices/attendance-devices.module').then(m => m.AttendanceDevicesModule),
     canActivate: [AuthGuard]
   },
-  { path: '**', redirectTo: '/members' }
+  { path: '**', redirectTo: '/dashboard' }
 ];
 
 @NgModule({

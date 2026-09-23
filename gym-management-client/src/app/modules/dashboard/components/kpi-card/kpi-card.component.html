@@ -1,0 +1,16 @@
+<div class="kpi-card">
+  <mat-icon class="kpi-icon">{{ icon }}</mat-icon>
+  <div class="kpi-body">
+    <span class="kpi-label">{{ label }}</span>
+    <span class="kpi-value">
+      <ng-container *ngIf="value !== null; else blank">
+        {{ format === 'currency' ? (value | number: '1.0-0') + ' ₫' : (value | number) }}
+      </ng-container>
+      <ng-template #blank>—</ng-template>
+    </span>
+    <span class="kpi-change" *ngIf="changePercent !== null" [class]="direction">
+      <mat-icon>{{ direction === 'up' ? 'trending_up' : direction === 'down' ? 'trending_down' : 'trending_flat' }}</mat-icon>
+      {{ changePercent > 0 ? '+' : '' }}{{ changePercent }}% so với tháng trước
+    </span>
+  </div>
+</div>

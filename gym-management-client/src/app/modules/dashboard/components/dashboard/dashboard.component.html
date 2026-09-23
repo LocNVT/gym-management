@@ -1,0 +1,30 @@
+<h1 class="page-title">Tổng quan</h1>
+
+<div class="kpi-grid" *ngIf="kpi as k">
+  <app-kpi-card *ngIf="showFinancials" label="Doanh thu tháng này" icon="payments"
+    [value]="k.revenue" [previous]="k.previousRevenue" format="currency"></app-kpi-card>
+  <app-kpi-card *ngIf="showFinancials" label="Chi phí tháng này" icon="receipt_long"
+    [value]="k.expense" [previous]="k.previousExpense" format="currency"></app-kpi-card>
+  <app-kpi-card *ngIf="showFinancials" label="Lợi nhuận" icon="savings"
+    [value]="k.profit" format="currency"></app-kpi-card>
+  <app-kpi-card *ngIf="showFinancials" label="Công nợ chưa thu" icon="pending_actions"
+    [value]="k.unpaidTotal" format="currency"></app-kpi-card>
+
+  <app-kpi-card label="Hội viên đang hoạt động" icon="people" [value]="k.activeMembers"></app-kpi-card>
+  <app-kpi-card label="Hội viên mới" icon="person_add"
+    [value]="k.newMembers" [previous]="k.previousNewMembers"></app-kpi-card>
+  <app-kpi-card label="Đang trong phòng" icon="directions_run" [value]="k.currentlyInside"></app-kpi-card>
+  <app-kpi-card label="Sắp hết hạn (30 ngày)" icon="event_busy" [value]="k.expiringIn30Days"></app-kpi-card>
+</div>
+
+<!--
+  Task 5 note: the plan's <app-loading> is not usable here — LoadingComponent is
+  declared in AppModule, which has no `exports` array, and this feature module is
+  lazily loaded (so it never imports AppModule). We use Material's own spinner
+  instead, which this module already imports.
+-->
+<div class="loading-row" *ngIf="loadingKpi">
+  <mat-spinner diameter="32"></mat-spinner>
+</div>
+
+<!-- Charts (revenue trend, member growth, package distribution, peak hours) arrive in Task 6. -->
