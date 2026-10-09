@@ -89,5 +89,18 @@ namespace gym_management_server.Repositories.Members
             _db.Members.AddRange(members);
             await _db.SaveChangesAsync();
         }
+
+        public async Task<Member?> GetByPhoneNumberAsync(string phoneNumber)
+        {
+            return await _db.Members.FirstOrDefaultAsync(x => x.PhoneNumber == phoneNumber && !x.IsDeleted);
+        }
+
+        public async Task<List<Member>> GetWithAvatarAsync()
+        {
+            return await _db.Members
+                .Where(x => !x.IsDeleted && x.AvatarUrl != null)
+                .OrderBy(x => x.FullName)
+                .ToListAsync();
+        }
     }
 }

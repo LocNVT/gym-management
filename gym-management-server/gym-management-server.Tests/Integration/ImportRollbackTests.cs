@@ -46,6 +46,8 @@ namespace gym_management_server.Tests.Integration
         public Task<List<MemberRow>> GetForExportAsync() => _inner.GetForExportAsync();
         public Task<List<(string PhoneNumber, bool IsDeleted)>> GetAllPhoneNumbersWithDeletedStateAsync() =>
             _inner.GetAllPhoneNumbersWithDeletedStateAsync();
+        public Task<Member?> GetByPhoneNumberAsync(string phoneNumber) => _inner.GetByPhoneNumberAsync(phoneNumber);
+        public Task<List<Member>> GetWithAvatarAsync() => _inner.GetWithAvatarAsync();
 
         public async Task AddRangeAsync(IEnumerable<Member> members)
         {
@@ -151,8 +153,12 @@ namespace gym_management_server.Tests.Integration
             // The decorator wrote this row for real before throwing. If it is still here, the
             // service's transaction did not actually roll back -- this is the assertion that
             // discriminates a real rollback from one that just never wrote anything.
+            // IgnoreQueryFilters: this runs outside any HTTP request, so there is no JWT for the
+            // tenant filter to read - without this the assertion below would pass even if the
+            // rollback were broken, since the filtered query can never see any row either way.
             using var scope = _factory.Services.CreateScope();
             var count = scope.ServiceProvider.GetRequiredService<GymManagementContext>().Members
+                .IgnoreQueryFilters()
                 .Count(m => m.PhoneNumber == "0900000071");
             Assert.Equal(0, count);
         }
@@ -206,8 +212,9 @@ namespace gym_management_server.Tests.Integration
             // discriminates a real rollback from one that just never wrote anything. (This
             // factory's database is private to this test class, so counting the whole table is
             // safe.)
+            // IgnoreQueryFilters: see the Member rollback test above for why.
             using var scope = _factory.Services.CreateScope();
-            var count = scope.ServiceProvider.GetRequiredService<GymManagementContext>().ServicePackages.Count();
+            var count = scope.ServiceProvider.GetRequiredService<GymManagementContext>().ServicePackages.IgnoreQueryFilters().Count();
             Assert.Equal(0, count);
         }
     }

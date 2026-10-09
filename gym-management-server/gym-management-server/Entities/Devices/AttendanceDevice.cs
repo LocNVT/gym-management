@@ -1,3 +1,5 @@
+using gym_management_server.Entities.Tenants;
+
 namespace gym_management_server.Entities.Devices
 {
     /// <summary>
@@ -5,9 +7,10 @@ namespace gym_management_server.Entities.Devices
     /// The <see cref="Vendor"/> drives which IFingerprintProvider handles its templates,
     /// keeping business logic decoupled from any specific hardware vendor.
     /// </summary>
-    public class AttendanceDevice
+    public class AttendanceDevice : ITenantScoped
     {
         public Guid Id { get; set; }
+        public Guid TenantId { get; set; }
 
         public string Name { get; set; } = null!;
         public string? Location { get; set; }

@@ -1,12 +1,14 @@
 ﻿using gym_management_server.Entities.Enums;
 using gym_management_server.Entities.Members;
 using gym_management_server.Entities.ServicePackages;
+using gym_management_server.Entities.Tenants;
 
 namespace gym_management_server.Entities.MemberDataServices
 {
-    public class MemberDataService
+    public class MemberDataService : ITenantScoped
     {
         public Guid Id { get; set; }
+        public Guid TenantId { get; set; }
         public Guid MemberId { get; set; }
         public Member Member { get; set; } = null!;
         public Guid ServicePackageId { get; set; }

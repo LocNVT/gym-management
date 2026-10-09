@@ -5,10 +5,12 @@ using gym_management_server.Entities.CheckIns;
 using gym_management_server.Entities.Enums;
 using gym_management_server.Entities.Fingerprints;
 using gym_management_server.Fingerprints;
+using gym_management_server.Infrastructure.Tenancy;
 using gym_management_server.Repositories.CheckIns;
 using gym_management_server.Repositories.Devices;
 using gym_management_server.Repositories.Fingerprints;
 using gym_management_server.Repositories.Members;
+using Microsoft.EntityFrameworkCore;
 
 namespace gym_management_server.Services.Fingerprints
 {
@@ -25,6 +27,7 @@ namespace gym_management_server.Services.Fingerprints
         private readonly IFingerprintProviderFactory _providerFactory;
         private readonly ITemplateProtector _protector;
         private readonly GymManagementServiceMapObjects _mapObjects;
+        private readonly ICurrentTenantAccessor _currentTenant;
 
         public FingerprintService(
             IFingerprintTemplateRepository templates,
@@ -33,7 +36,8 @@ namespace gym_management_server.Services.Fingerprints
             IMemberRepository members,
             IFingerprintProviderFactory providerFactory,
             ITemplateProtector protector,
-            GymManagementServiceMapObjects mapObjects)
+            GymManagementServiceMapObjects mapObjects,
+            ICurrentTenantAccessor currentTenant)
         {
             _templates = templates;
             _devices = devices;
@@ -42,6 +46,7 @@ namespace gym_management_server.Services.Fingerprints
             _providerFactory = providerFactory;
             _protector = protector;
             _mapObjects = mapObjects;
+            _currentTenant = currentTenant;
         }
 
         // ---------- Enrolment ----------
@@ -107,10 +112,16 @@ namespace gym_management_server.Services.Fingerprints
 
         public async Task<VerifyFingerprintResult> VerifyAsync(VerifyFingerprintInput input)
         {
-            var device = await _devices.GetByIdAsync(input.DeviceId)
+            // This endpoint is anonymous (authenticated by a shared device API key, not a user
+            // JWT - see FingerprintController), so there is no ambient tenant yet. The device
+            // itself determines it: look it up ignoring the tenant filter, then set the ambient
+            // tenant from what it belongs to, so every query below it (templates, member,
+            // check-ins) is correctly scoped - and a device/member can never match across tenants.
+            var device = await _devices.GetByIdIgnoringTenantAsync(input.DeviceId)
                 ?? throw new InvalidOperationException($"Device '{input.DeviceId}' was not found.");
             if (!device.IsActive)
                 throw new InvalidOperationException($"Device '{device.Name}' is inactive.");
+            _currentTenant.SetTenant(device.TenantId);
 
             var probe = DecodeTemplate(input.CapturedTemplate);
             var provider = _providerFactory.GetProvider(device.Vendor);
@@ -143,21 +154,37 @@ namespace gym_management_server.Services.Fingerprints
                     DeviceId = device.Id,
                     OperatorUserId = input.OperatorUserId
                 };
-                await _checkIns.AddAsync(session);
 
-                return new VerifyFingerprintResult
+                try
                 {
-                    Matched = true,
-                    Score = match.Score,
-                    MemberId = memberId,
-                    MemberName = member?.FullName,
-                    Action = "check-in",
-                    CheckInId = session.Id,
-                    Timestamp = now
-                };
+                    await _checkIns.AddAsync(session);
+
+                    return new VerifyFingerprintResult
+                    {
+                        Matched = true,
+                        Score = match.Score,
+                        MemberId = memberId,
+                        MemberName = member?.FullName,
+                        Action = "check-in",
+                        CheckInId = session.Id,
+                        Timestamp = now
+                    };
+                }
+                catch (DbUpdateException)
+                {
+                    // Lost a race: another scan/request opened a session for this member between
+                    // our read above and this insert. The unique index on CheckIns(MemberId)
+                    // WHERE CheckOutTime IS NULL rejected the duplicate. Fall back to treating this
+                    // scan as the check-out of the session the other request just opened, instead
+                    // of surfacing a 500 or silently creating a second open session.
+                    active = await _checkIns.GetActiveByMemberAsync(memberId);
+                    if (active == null)
+                        throw; // not the expected race - some other failure.
+                }
             }
 
             active.CheckOutTime = now;
+            active.CheckOutMethod = CheckOutMethod.Scan;
             await _checkIns.UpdateAsync(active);
 
             return new VerifyFingerprintResult

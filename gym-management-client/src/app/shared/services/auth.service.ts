@@ -16,6 +16,8 @@ export interface RegisterInput {
     email: string;
     password: string;
     fullName: string;
+    /** Name of the new gym branch this registration creates (server defaults it if left blank). */
+    tenantName?: string;
 }
 
 export interface AuthResponse {

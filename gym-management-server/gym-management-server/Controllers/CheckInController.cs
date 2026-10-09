@@ -1,8 +1,10 @@
-﻿using gym_management_server.Entities.CheckIns;
+﻿using System.Security.Claims;
+using gym_management_server.Entities.CheckIns;
 using gym_management_server.Infrastructure.Excel;
 using gym_management_server.Services.CheckIns;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace gym_management_server.Controllers
 {
@@ -31,8 +33,18 @@ namespace gym_management_server.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(CheckInCreateInput member)
         {
-            var created = await _service.CreateAsync(member);
-            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+            try
+            {
+                var created = await _service.CreateAsync(member);
+                return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+            }
+            catch (DbUpdateException)
+            {
+                // Rejected by the unique "one open session per member" index (see
+                // docs/ImprovementPlan.md mục 2) - most likely this member already has an open
+                // check-in that was never checked out.
+                return BadRequest(new { message = "Hội viên này đang có một phiên điểm danh chưa check-out. Vui lòng check-out phiên đó trước." });
+            }
         }
 
         [HttpPut("{id}")]
@@ -47,6 +59,28 @@ namespace gym_management_server.Controllers
         {
             var success = await _service.DeleteAsync(id);
             return success ? NoContent() : NotFound();
+        }
+
+        /// <summary>Manual check-out, for staff to use when a member forgot to scan out.</summary>
+        [HttpPost("{id}/checkout")]
+        [Authorize]
+        public async Task<IActionResult> CheckOut(Guid id)
+        {
+            try
+            {
+                var result = await _service.CheckOutAsync(id, GetCurrentUserId());
+                return result == null ? NotFound() : Ok(result);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        private Guid? GetCurrentUserId()
+        {
+            var raw = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return Guid.TryParse(raw, out var id) ? id : null;
         }
 
         [HttpGet("export")]

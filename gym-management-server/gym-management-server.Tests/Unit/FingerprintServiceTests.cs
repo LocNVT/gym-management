@@ -58,7 +58,8 @@ namespace gym_management_server.Tests.Unit
                 new MemberRepository(db),
                 factory,
                 new AesTemplateProtector(config),
-                new GymManagementServiceMapObjects());
+                new GymManagementServiceMapObjects(),
+                db.CurrentTenant);
         }
 
         private static string Template(string seed)

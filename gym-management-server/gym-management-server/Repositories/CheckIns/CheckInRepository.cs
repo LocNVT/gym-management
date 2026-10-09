@@ -19,7 +19,20 @@ namespace gym_management_server.Repositories.CheckIns
         public async Task AddAsync(CheckIn checkIn)
         {
             _db.CheckIns.Add(checkIn);
-            await _db.SaveChangesAsync();
+            try
+            {
+                await _db.SaveChangesAsync();
+            }
+            catch
+            {
+                // A failed save leaves this insert (and any audit-log row staged for it) tracked
+                // as Added. Left alone, the next unrelated SaveChangesAsync on this same
+                // (request-scoped) context would silently retry and persist them - exactly what
+                // breaks FingerprintService's race-condition recovery, which calls UpdateAsync
+                // right after catching this failure.
+                _db.DiscardPendingChanges();
+                throw;
+            }
         }
 
         public async Task DeleteAsync(Guid id)

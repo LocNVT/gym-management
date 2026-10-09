@@ -1,9 +1,11 @@
 import { Component } from '@angular/core';
+import { AuthService } from '../../services/auth.service';
 
 export interface MenuItem {
   label: string;
   icon: string;
   route: string;
+  adminOnly?: boolean;
 }
 
 export interface MenuGroup {
@@ -18,6 +20,16 @@ export interface MenuGroup {
   styleUrls: ['./sidebar.scss']
 })
 export class SidebarComponent {
+  constructor(private authService: AuthService) { }
+
+  isAdmin(): boolean {
+    return this.authService.getUser()?.role === 1;
+  }
+
+  visibleItems(group: MenuGroup): MenuItem[] {
+    return group.items.filter(item => !item.adminOnly || this.isAdmin());
+  }
+
   menuGroups: MenuGroup[] = [
     {
       title: 'Tổng quan',
@@ -49,6 +61,12 @@ export class SidebarComponent {
         { label: 'Theo dõi trực tiếp', icon: 'dashboard', route: '/attendance-dashboard' },
         { label: 'Vân tay', icon: 'fingerprint', route: '/fingerprint-attendance' },
         { label: 'Thiết bị', icon: 'devices', route: '/attendance-devices' },
+      ]
+    },
+    {
+      title: 'Hệ thống',
+      items: [
+        { label: 'Quản lý tài khoản', icon: 'manage_accounts', route: '/users', adminOnly: true },
       ]
     }
   ];

@@ -131,6 +131,24 @@ export class TrainerService {
     delete(id: string): Observable<any> { return this.http.delete<any>(`${this.url}/${id}`); }
 }
 
+/** Admin-only account management, scoped server-side to the caller's own tenant. */
+@Injectable({ providedIn: 'root' })
+export class UserService {
+    private url = `${API_BASE}/Users`;
+    constructor(private http: HttpClient) { }
+    getAll(page = 1, pageSize = 20): Observable<PaginatedResult<any>> {
+        const params = new HttpParams().set('page', page).set('pageSize', pageSize);
+        return this.http.get<PaginatedResult<any>>(this.url, { params });
+    }
+    create(data: any): Observable<any> { return this.http.post<any>(this.url, data); }
+    setActive(id: string, isActive: boolean): Observable<any> {
+        return this.http.put<any>(`${this.url}/${id}/active`, { isActive });
+    }
+    setRole(id: string, role: number): Observable<any> {
+        return this.http.put<any>(`${this.url}/${id}/role`, { role });
+    }
+}
+
 @Injectable({ providedIn: 'root' })
 export class AttendanceDeviceService {
     private url = `${API_BASE}/AttendanceDevice`;

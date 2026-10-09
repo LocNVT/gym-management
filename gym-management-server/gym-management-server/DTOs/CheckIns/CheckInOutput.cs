@@ -10,6 +10,8 @@ namespace gym_management_server.Entities.CheckIns
         public Member Member { get; set; } = null!;
         public DateTime CheckInTime { get; set; } = DateTime.UtcNow;
         public CheckInMethod Method { get; set; } = CheckInMethod.Unknown;
+        public DateTime? CheckOutTime { get; set; }
+        public CheckOutMethod CheckOutMethod { get; set; } = CheckOutMethod.None;
         public string? Notes { get; set; }
     }
 }

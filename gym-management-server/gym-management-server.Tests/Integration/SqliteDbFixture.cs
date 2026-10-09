@@ -1,4 +1,5 @@
 using gym_management_server.Data.EntityFramework;
+using gym_management_server.Infrastructure.Auditing;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,14 +14,15 @@ namespace gym_management_server.Tests.Integration
     {
         private readonly List<SqliteConnection> _connections = new();
 
-        public GymManagementContext NewContext()
+        public GymManagementContext NewContext(ICurrentUserAccessor? currentUser = null)
         {
             var connection = new SqliteConnection("DataSource=:memory:");
             connection.Open();
             _connections.Add(connection);
 
             var context = new GymManagementContext(
-                new DbContextOptionsBuilder<GymManagementContext>().UseSqlite(connection).Options);
+                new DbContextOptionsBuilder<GymManagementContext>().UseSqlite(connection).Options,
+                currentUser ?? NullCurrentUserAccessor.Instance);
             context.Database.EnsureCreated();
             return context;
         }

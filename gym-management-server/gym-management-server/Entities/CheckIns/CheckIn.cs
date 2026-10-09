@@ -1,6 +1,7 @@
 using gym_management_server.Entities.Devices;
 using gym_management_server.Entities.Enums;
 using gym_management_server.Entities.Members;
+using gym_management_server.Entities.Tenants;
 
 namespace gym_management_server.Entities.CheckIns
 {
@@ -8,7 +9,7 @@ namespace gym_management_server.Entities.CheckIns
     /// An attendance session for a member. A row with <see cref="CheckOutTime"/> == null is an
     /// "active" attendance (member is currently inside). The next successful match closes it (check-out).
     /// </summary>
-    public class CheckIn
+    public class CheckIn : ITenantScoped
     {
         public CheckIn() { }
 
@@ -22,6 +23,7 @@ namespace gym_management_server.Entities.CheckIns
         }
 
         public Guid Id { get; set; }
+        public Guid TenantId { get; set; }
         public Guid MemberId { get; set; }
         public Member Member { get; set; } = null!;
 
@@ -29,6 +31,9 @@ namespace gym_management_server.Entities.CheckIns
 
         /// <summary>Null while the member is still inside; set on check-out.</summary>
         public DateTime? CheckOutTime { get; set; }
+
+        /// <summary>How the check-out happened. Meaningless while <see cref="CheckOutTime"/> is null.</summary>
+        public CheckOutMethod CheckOutMethod { get; set; } = CheckOutMethod.None;
 
         /// <summary>0 = unknown/manual, 1 = card, 2 = fingerprint, ... (matches CheckInMethod).</summary>
         public CheckInMethod Method { get; set; } = CheckInMethod.Unknown;
@@ -41,5 +46,7 @@ namespace gym_management_server.Entities.CheckIns
         public Guid? OperatorUserId { get; set; }
 
         public string? Notes { get; set; }
+
+        public byte[]? RowVersion { get; set; }
     }
 }

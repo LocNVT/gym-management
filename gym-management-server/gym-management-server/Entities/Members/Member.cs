@@ -3,12 +3,14 @@ using gym_management_server.Entities.Enums;
 using gym_management_server.Entities.Fingerprints;
 using gym_management_server.Entities.Invoices;
 using gym_management_server.Entities.MemberDataServices;
+using gym_management_server.Entities.Tenants;
 
 namespace gym_management_server.Entities.Members
 {
-    public class Member
+    public class Member : ITenantScoped
     {
         public Guid Id { get; set; }
+        public Guid TenantId { get; set; }
         public string FullName { get; set; } = null!;
         public DateTime? DateOfBirth { get; set; }
         public Gender? Gender { get; set; }
@@ -26,6 +28,7 @@ namespace gym_management_server.Entities.Members
 
         public string? AvatarUrl { get; set; }
 
+        public byte[]? RowVersion { get; set; }
 
         public List<MemberDataService> MemberServices { get; set; } = new();
         public List<CheckIn> CheckIns { get; set; } = new();

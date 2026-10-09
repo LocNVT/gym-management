@@ -24,5 +24,12 @@ namespace gym_management_server.Repositories.Members
         /// <summary>Adds every member and issues a single SaveChanges for the whole batch,
         /// so the caller's transaction covers it.</summary>
         Task AddRangeAsync(IEnumerable<Member> members);
+
+        /// <summary>Looks a member up by their (unique) phone number - used as the human-readable
+        /// key for bulk avatar import, since members don't come with their Guid Id memorised.</summary>
+        Task<Member?> GetByPhoneNumberAsync(string phoneNumber);
+
+        /// <summary>Every non-deleted member that currently has an avatar, for bulk export.</summary>
+        Task<List<Member>> GetWithAvatarAsync();
     }
 }

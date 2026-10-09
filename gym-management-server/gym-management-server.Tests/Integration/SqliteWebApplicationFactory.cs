@@ -4,6 +4,7 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
 using gym_management_server.Data.EntityFramework;
+using gym_management_server.Infrastructure.Tenancy;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
@@ -24,6 +25,9 @@ namespace gym_management_server.Tests.Integration
     /// </summary>
     public class SqliteWebApplicationFactory : WebApplicationFactory<Program>
     {
+        /// <summary>See CustomWebApplicationFactory.TestTenantId - same purpose, same value.</summary>
+        public static readonly Guid TestTenantId = CustomWebApplicationFactory.TestTenantId;
+
         private DbConnection? _connection;
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -81,6 +85,7 @@ namespace gym_management_server.Tests.Integration
                     new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()),
                     new Claim(ClaimTypes.Name, role == 1 ? "admin" : "staff"),
                     new Claim(ClaimTypes.Role, role.ToString()),
+                    new Claim(HttpContextCurrentTenantAccessor.TenantIdClaimType, TestTenantId.ToString()),
                 },
                 expires: DateTime.UtcNow.AddHours(1),
                 signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256));

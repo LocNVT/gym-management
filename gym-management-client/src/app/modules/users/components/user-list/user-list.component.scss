@@ -1,0 +1,18 @@
+.status-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+
+    &.status-active {
+        background: #e8f5e9;
+        color: #2e7d32;
+    }
+
+    &.status-locked {
+        background: #ffebee;
+        color: #c62828;
+    }
+}

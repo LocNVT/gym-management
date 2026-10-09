@@ -6,6 +6,7 @@ using System.Text.Json;
 using ClosedXML.Excel;
 using gym_management_server.Data.EntityFramework;
 using gym_management_server.Entities.Members;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -37,7 +38,10 @@ namespace gym_management_server.Tests.Integration
         private int MemberCount()
         {
             using var scope = _factory.Services.CreateScope();
-            return scope.ServiceProvider.GetRequiredService<GymManagementContext>().Members.Count();
+            // IgnoreQueryFilters: this count runs outside any HTTP request, so there is no JWT for
+            // the tenant query filter to read - without this it would always return 0 regardless
+            // of what the (correctly tenant-scoped) import actually wrote.
+            return scope.ServiceProvider.GetRequiredService<GymManagementContext>().Members.IgnoreQueryFilters().Count();
         }
 
         [Fact]
@@ -115,7 +119,7 @@ namespace gym_management_server.Tests.Integration
             using (var scope = _factory.Services.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<GymManagementContext>();
-                db.Members.Add(new Member { Id = Guid.NewGuid(), FullName = "Đã có", PhoneNumber = "0900000041" });
+                db.Members.Add(new Member { Id = Guid.NewGuid(), TenantId = SqliteWebApplicationFactory.TestTenantId, FullName = "Đã có", PhoneNumber = "0900000041" });
                 db.SaveChanges();
             }
 
@@ -152,6 +156,7 @@ namespace gym_management_server.Tests.Integration
                 db.Members.Add(new Member
                 {
                     Id = Guid.NewGuid(),
+                    TenantId = SqliteWebApplicationFactory.TestTenantId,
                     FullName = "Đã xóa",
                     PhoneNumber = "0900000061",
                     IsDeleted = true,
@@ -178,6 +183,7 @@ namespace gym_management_server.Tests.Integration
                 db.Members.Add(new Member
                 {
                     Id = Guid.NewGuid(),
+                    TenantId = SqliteWebApplicationFactory.TestTenantId,
                     FullName = "Đang hoạt động",
                     PhoneNumber = "0900000062",
                     IsDeleted = false,

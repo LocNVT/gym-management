@@ -45,8 +45,12 @@ namespace gym_management_server.Tests.Integration
         {
             Seed(db =>
             {
-                db.Members.Add(new Member { Id = Guid.NewGuid(), FullName = "Nguyễn Văn A", PhoneNumber = "0911000001" });
-                db.Members.Add(new Member { Id = Guid.NewGuid(), FullName = "Trần Thị B", PhoneNumber = "0911000002" });
+                // TenantId set explicitly: this seed bypasses the HTTP pipeline, so there is no
+                // JWT for GymManagementContext to auto-stamp a tenant from - it must match
+                // CustomWebApplicationFactory.TestTenantId, the tenant the authenticated client
+                // below will query as.
+                db.Members.Add(new Member { Id = Guid.NewGuid(), TenantId = CustomWebApplicationFactory.TestTenantId, FullName = "Nguyễn Văn A", PhoneNumber = "0911000001" });
+                db.Members.Add(new Member { Id = Guid.NewGuid(), TenantId = CustomWebApplicationFactory.TestTenantId, FullName = "Trần Thị B", PhoneNumber = "0911000002" });
             });
 
             var response = await _factory.CreateAuthenticatedClient(role: 0).GetAsync("/api/Member/export");
@@ -86,7 +90,7 @@ namespace gym_management_server.Tests.Integration
             {
                 var db = scope.ServiceProvider.GetRequiredService<GymManagementContext>();
                 for (var i = 0; i <= ExcelWriter.MaxRows; i++)
-                    db.Members.Add(new Member { Id = Guid.NewGuid(), FullName = $"HV{i}", PhoneNumber = $"09{i:D8}" });
+                    db.Members.Add(new Member { Id = Guid.NewGuid(), TenantId = CustomWebApplicationFactory.TestTenantId, FullName = $"HV{i}", PhoneNumber = $"09{i:D8}" });
                 db.SaveChanges();
             }
 

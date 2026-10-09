@@ -17,6 +17,11 @@ namespace gym_management_server.Repositories.Devices
             return await _db.AttendanceDevices.FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
         }
 
+        public async Task<AttendanceDevice?> GetByIdIgnoringTenantAsync(Guid id)
+        {
+            return await _db.AttendanceDevices.IgnoreQueryFilters().FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
+        }
+
         public async Task<List<AttendanceDevice>> GetAllAsync()
         {
             return await _db.AttendanceDevices.Where(x => !x.IsDeleted).ToListAsync();

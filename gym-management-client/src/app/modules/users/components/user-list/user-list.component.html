@@ -1,0 +1,39 @@
+<div class="page-header">
+    <h2 class="page-title">Quản lý tài khoản</h2>
+</div>
+
+<div class="content-card">
+    <dx-data-grid [dataSource]="dataSource" [showBorders]="false" [rowAlternationEnabled]="true" [columnAutoWidth]="true"
+        [remoteOperations]="{ paging: true }">
+
+        <!-- Chỉ thêm mới (Add) và sửa Vai trò qua popup - đổi khóa/mở khóa dùng nút riêng bên dưới,
+             vì server không có endpoint "update" chung cho tài khoản. -->
+        <dxo-editing mode="popup" [allowAdding]="true" [allowUpdating]="true">
+            <dxo-popup title="Tài khoản" [showTitle]="true" [width]="500" [height]="420"></dxo-popup>
+        </dxo-editing>
+        <dxo-filter-row [visible]="true"></dxo-filter-row>
+        <dxo-search-panel [visible]="true" placeholder="Tìm kiếm..."></dxo-search-panel>
+        <dxo-paging [pageSize]="20"></dxo-paging>
+        <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 20, 50]" [showInfo]="true"></dxo-pager>
+
+        <dxi-column dataField="username" caption="Tên đăng nhập" [allowEditing]="false"></dxi-column>
+        <dxi-column dataField="email" caption="Email" [allowEditing]="false"></dxi-column>
+        <dxi-column dataField="fullName" caption="Họ tên" [allowEditing]="false"></dxi-column>
+        <dxi-column dataField="password" caption="Mật khẩu" [visible]="false" [showInColumnChooser]="false"></dxi-column>
+        <dxi-column dataField="role" caption="Vai trò">
+            <dxo-lookup [dataSource]="roleOptions" valueExpr="value" displayExpr="text"></dxo-lookup>
+        </dxi-column>
+        <dxi-column dataField="isActive" caption="Trạng thái" dataType="boolean" [allowEditing]="false"
+            cellTemplate="statusCell"></dxi-column>
+        <div *dxTemplate="let cell of 'statusCell'">
+            <span [class]="cell.value ? 'status-badge status-active' : 'status-badge status-locked'">
+                {{ cell.value ? 'Đang hoạt động' : 'Đã khóa' }}
+            </span>
+        </div>
+        <dxi-column dataField="createdAt" caption="Ngày tạo" dataType="date" [allowEditing]="false"></dxi-column>
+
+        <dxi-column type="buttons" caption="Thao tác">
+            <dxi-button [text]="'Khóa/Mở khóa'" [onClick]="onToggleActiveClick"></dxi-button>
+        </dxi-column>
+    </dx-data-grid>
+</div>

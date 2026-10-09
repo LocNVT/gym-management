@@ -6,6 +6,7 @@ using System.Text.Json;
 using ClosedXML.Excel;
 using gym_management_server.Data.EntityFramework;
 using gym_management_server.Entities.ServicePackages;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -44,7 +45,8 @@ namespace gym_management_server.Tests.Integration
         private int PackageCount()
         {
             using var scope = _factory.Services.CreateScope();
-            return scope.ServiceProvider.GetRequiredService<GymManagementContext>().ServicePackages.Count();
+            // IgnoreQueryFilters: see ImportApiTests.MemberCount for why.
+            return scope.ServiceProvider.GetRequiredService<GymManagementContext>().ServicePackages.IgnoreQueryFilters().Count();
         }
 
         [Fact]
@@ -99,10 +101,12 @@ namespace gym_management_server.Tests.Integration
 
             // Item 5's default fix: a package imported with the "Đang áp dụng" column left
             // blank must come in active, not silently disabled.
+            // IgnoreQueryFilters: see PackageCount for why (this verification runs outside any
+            // HTTP request, so there is no JWT for the tenant filter to read).
             using var scope = _factory.Services.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<GymManagementContext>();
-            Assert.True(db.ServicePackages.Single(p => p.Name == nameA).IsActive);
-            Assert.True(db.ServicePackages.Single(p => p.Name == nameB).IsActive);
+            Assert.True(db.ServicePackages.IgnoreQueryFilters().Single(p => p.Name == nameA).IsActive);
+            Assert.True(db.ServicePackages.IgnoreQueryFilters().Single(p => p.Name == nameB).IsActive);
         }
 
         [Fact]
@@ -132,7 +136,7 @@ namespace gym_management_server.Tests.Integration
             using (var scope = _factory.Services.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<GymManagementContext>();
-                db.ServicePackages.Add(new ServicePackage { Id = Guid.NewGuid(), Name = name, DurationDays = 30 });
+                db.ServicePackages.Add(new ServicePackage { Id = Guid.NewGuid(), TenantId = SqliteWebApplicationFactory.TestTenantId, Name = name, DurationDays = 30 });
                 db.SaveChanges();
             }
 

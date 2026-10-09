@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './shared/guards/auth.guard';
+import { RoleGuard } from './shared/guards/role.guard';
 
 const routes: Routes = [
   {
@@ -67,6 +68,11 @@ const routes: Routes = [
     path: 'attendance-devices',
     loadChildren: () => import('./modules/attendance-devices/attendance-devices.module').then(m => m.AttendanceDevicesModule),
     canActivate: [AuthGuard]
+  },
+  {
+    path: 'users',
+    loadChildren: () => import('./modules/users/users.module').then(m => m.UsersModule),
+    canActivate: [AuthGuard, RoleGuard]
   },
   { path: '**', redirectTo: '/dashboard' }
 ];

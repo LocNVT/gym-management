@@ -3,8 +3,11 @@ using System.Security.Claims;
 using System.Text;
 using gym_management_server.DTOs.Auth;
 using gym_management_server.Entities.OtpTokens;
+using gym_management_server.Entities.Tenants;
 using gym_management_server.Entities.Users;
+using gym_management_server.Infrastructure.Tenancy;
 using gym_management_server.Repositories.OtpTokens;
+using gym_management_server.Repositories.Tenants;
 using gym_management_server.Repositories.Users;
 using gym_management_server.Services.Email;
 using Google.Apis.Auth;
@@ -15,17 +18,20 @@ namespace gym_management_server.Services.Auth
     public class AuthService
     {
         private readonly IUserRepository _userRepository;
+        private readonly ITenantRepository _tenantRepository;
         private readonly IOtpTokenRepository _otpTokenRepository;
         private readonly EmailService _emailService;
         private readonly IConfiguration _config;
 
         public AuthService(
             IUserRepository userRepository,
+            ITenantRepository tenantRepository,
             IOtpTokenRepository otpTokenRepository,
             EmailService emailService,
             IConfiguration config)
         {
             _userRepository = userRepository;
+            _tenantRepository = tenantRepository;
             _otpTokenRepository = otpTokenRepository;
             _emailService = emailService;
             _config = config;
@@ -41,14 +47,26 @@ namespace gym_management_server.Services.Auth
             if (existingEmail != null)
                 throw new Exception("Email đã được sử dụng.");
 
+            // Public self-registration always creates a brand-new tenant (gym branch), with this
+            // account as its first Admin. Adding a staff account to an EXISTING tenant is a
+            // separate, Admin-only flow - see UserController. (docs/ImprovementPlan.md mục 1)
+            var tenant = new Tenant
+            {
+                Id = Guid.NewGuid(),
+                Name = string.IsNullOrWhiteSpace(input.TenantName) ? $"Gym của {input.FullName}" : input.TenantName,
+                CreatedAt = DateTime.UtcNow
+            };
+            await _tenantRepository.AddAsync(tenant);
+
             var user = new User
             {
                 Id = Guid.NewGuid(),
+                TenantId = tenant.Id,
                 Username = input.Username,
                 Email = input.Email,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(input.Password),
                 FullName = input.FullName,
-                Role = 0,
+                Role = 1, // Admin of their own new tenant
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -91,15 +109,25 @@ namespace gym_management_server.Services.Auth
                 }
                 else
                 {
-                    // Create new user
+                    // No existing account at all: same as self-service register, this creates a
+                    // brand-new tenant with this Google account as its first Admin.
+                    var tenant = new Tenant
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = $"Gym của {payload.Name ?? payload.Email}",
+                        CreatedAt = DateTime.UtcNow
+                    };
+                    await _tenantRepository.AddAsync(tenant);
+
                     user = new User
                     {
                         Id = Guid.NewGuid(),
+                        TenantId = tenant.Id,
                         Username = payload.Email,
                         Email = payload.Email,
                         FullName = payload.Name ?? payload.Email,
                         GoogleId = payload.Subject,
-                        Role = 0,
+                        Role = 1,
                         CreatedAt = DateTime.UtcNow
                     };
                     await _userRepository.AddAsync(user);
@@ -168,7 +196,8 @@ namespace gym_management_server.Services.Auth
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.Role.ToString())
+                new Claim(ClaimTypes.Role, user.Role.ToString()),
+                new Claim(HttpContextCurrentTenantAccessor.TenantIdClaimType, user.TenantId.ToString())
             };
 
             var token = new JwtSecurityToken(
@@ -185,6 +214,7 @@ namespace gym_management_server.Services.Auth
                 Email = user.Email,
                 FullName = user.FullName,
                 Role = user.Role,
+                TenantId = user.TenantId,
                 ExpiresAt = expiresAt
             };
         }

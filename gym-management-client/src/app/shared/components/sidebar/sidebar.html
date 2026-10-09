@@ -4,10 +4,10 @@
 </div>
 
 <nav class="sidebar-nav">
-    <div class="nav-group" *ngFor="let group of menuGroups">
+    <div class="nav-group" *ngFor="let group of menuGroups" [hidden]="visibleItems(group).length === 0">
         <div class="nav-group-title">{{ group.title }}</div>
         <a class="nav-item"
-           *ngFor="let item of group.items"
+           *ngFor="let item of visibleItems(group)"
            [routerLink]="item.route"
            routerLinkActive="active">
             <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>

@@ -1,5 +1,6 @@
 ﻿using gym_management_server.DTOs.Common;
 using gym_management_server.Entities.CheckIns;
+using gym_management_server.Entities.Enums;
 using gym_management_server.Infrastructure.Excel;
 using gym_management_server.Repositories.CheckIns;
 
@@ -47,6 +48,27 @@ namespace gym_management_server.Services.CheckIns
             {
                 return new CheckInOutput();
             }
+            await _checkInRepository.UpdateAsync(checkIn);
+            return _mapObjects.MapObjects<CheckIn, CheckInOutput>(checkIn);
+        }
+
+        /// <summary>
+        /// Manual check-out for a staff member to use when a member forgot to scan out (see
+        /// docs/ImprovementPlan.md mục 4). Returns null if the session doesn't exist, and throws if
+        /// it's already closed - a client retrying a successful checkout shouldn't silently "succeed"
+        /// a second time with a new timestamp.
+        /// </summary>
+        public async Task<CheckInOutput?> CheckOutAsync(Guid id, Guid? operatorUserId)
+        {
+            var checkIn = await _checkInRepository.GetByIdAsync(id);
+            if (checkIn == null) return null;
+            if (checkIn.CheckOutTime != null)
+                throw new InvalidOperationException("Phiên điểm danh này đã được check-out trước đó.");
+
+            checkIn.CheckOutTime = DateTime.UtcNow;
+            checkIn.CheckOutMethod = CheckOutMethod.ManualByStaff;
+            checkIn.OperatorUserId = operatorUserId;
+
             await _checkInRepository.UpdateAsync(checkIn);
             return _mapObjects.MapObjects<CheckIn, CheckInOutput>(checkIn);
         }

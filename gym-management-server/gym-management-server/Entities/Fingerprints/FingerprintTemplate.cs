@@ -1,4 +1,5 @@
 using gym_management_server.Entities.Members;
+using gym_management_server.Entities.Tenants;
 
 namespace gym_management_server.Entities.Fingerprints
 {
@@ -6,9 +7,10 @@ namespace gym_management_server.Entities.Fingerprints
     /// A biometric fingerprint template registered for a member.
     /// Stores ONLY the encrypted, vendor-produced template bytes — never a raw fingerprint image.
     /// </summary>
-    public class FingerprintTemplate
+    public class FingerprintTemplate : ITenantScoped
     {
         public Guid Id { get; set; }
+        public Guid TenantId { get; set; }
 
         public Guid MemberId { get; set; }
         public Member Member { get; set; } = null!;

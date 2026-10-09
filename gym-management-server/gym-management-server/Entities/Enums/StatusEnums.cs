@@ -51,5 +51,21 @@ namespace gym_management_server.Entities.Enums
         [Description("Không rõ")] Unknown = 0,
         [Description("Thẻ")] Card = 1,
         [Description("Vân tay")] Fingerprint = 2,
+        [Description("Khuôn mặt")] Face = 3,
+    }
+
+    public enum AuditAction : byte
+    {
+        [Description("Tạo mới")] Create = 0,
+        [Description("Cập nhật")] Update = 1,
+        [Description("Xóa")] Delete = 2,
+    }
+
+    public enum CheckOutMethod : byte
+    {
+        [Description("Chưa check-out")] None = 0,
+        [Description("Quét vân tay")] Scan = 1,
+        [Description("Nhân viên check-out thủ công")] ManualByStaff = 2,
+        [Description("Tự động (quá hạn)")] AutoTimeout = 3,
     }
 }

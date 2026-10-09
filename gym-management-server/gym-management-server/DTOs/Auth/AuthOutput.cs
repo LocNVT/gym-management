@@ -7,6 +7,7 @@ namespace gym_management_server.DTOs.Auth
         public string Email { get; set; } = null!;
         public string FullName { get; set; } = null!;
         public byte Role { get; set; }
+        public Guid TenantId { get; set; }
         public DateTime ExpiresAt { get; set; }
     }
 }
